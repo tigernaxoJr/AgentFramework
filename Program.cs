@@ -9,6 +9,6 @@ DotEnv.Load();
 
 // Create an Ollama agent using Microsoft.Extensions.AI.Ollama
 // Requires: dotnet add package Microsoft.Extensions.AI.Ollama --prerelease
-var result = await MyGoogle.test();
+var result = await MyOpenAI.test();
 Console.WriteLine(result);
 Console.ReadLine();

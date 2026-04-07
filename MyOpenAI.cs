@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ClientModel;
+using Microsoft.Extensions.AI;
+using MyAgentFramework.Tools;
 
 namespace MyAgentFramework
 {
@@ -21,10 +23,12 @@ namespace MyAgentFramework
             var chatClient = client.GetChatClient("gemma4:26B");
 
             AIAgent agent = chatClient.AsAIAgent(
-                instructions: "You are a helpful assistant running locally via Ollama.",
-                name: "Joker");
+                instructions: "You are a helpful assistant.  Keep your answers brief.",
+                name: "Joker",
+                tools: [AIFunctionFactory.Create(Weather.GetWeather)]
+                );
 
-            return await agent.RunAsync("Tell me a joke about a pirate.");
+            return await agent.RunAsync("Tell me weather about 龍井.");
         }
     }
 }
