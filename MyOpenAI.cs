@@ -29,8 +29,9 @@ namespace MyAgentFramework
                 );
             Microsoft.Extensions.AI.ChatMessage chatMessage = new(
                 ChatRole.User, [
-                new TextContent("What do you see in this image? 請以繁體中文回答"),
-                new DataContent("data:image/jpeg;base64,/9j/4gIcSUNDX1BST0ZJTEU...=")
+                new TextContent("你好"),
+                //new TextContent("What do you see in this image? 請以繁體中文回答"),
+                //new DataContent("data:image/jpeg;base64,/9j/4gIcSUNDX1BST0ZJTEU...=")
             ]);
 
             //return await agent.RunAsync("Tell me weather about 龍井.");
