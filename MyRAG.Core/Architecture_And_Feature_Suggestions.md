@@ -12,9 +12,20 @@
 
 ### 1. 資料讀取與文件抽象 (Document Loaders & Models)
 目前 `TextChunkingService` 只吃單純的 `string`。在真實場景中，資料通常帶有後設資料 (Metadata)。
-*   **功能建議**：
-    *   新增 `Document` 實體類別，包含 `Id`, `Content`, `Metadata` (Dictionary), `Source` 等屬性。
-    *   建立 `IDocumentLoader` 介面，並實作常見格式的讀取器（例如 `PdfLoader`, `HtmlLoader`, `MarkdownLoader`, `TextLoader`）。
+
+**架構設計原則：核心層 (Core) 與擴充層 (Extensions) 分離**
+強烈建議**不該**在 `MyRAG.Core` 裡面實作「所有」實際解析文件的程式碼，原因如下：
+1. **避免臃腫的依賴 (Dependency Bloat)**：解析 PDF 通常需要引入龐大的第三方套件（例如 `PdfPig`, `iText7`），解析 HTML 可能需要 `HtmlAgilityPack`。若全部塞在 Core 專案中，任何引用此專案的人即使只需要處理純文字，也被迫下載大量不必要的 dll。
+2. **單一職責原則 (SRP)**：`MyRAG.Core` 的職責是提供 RAG 的「骨架」與「核心流程」，而非萬能的文件解析器。
+
+*   **功能與實作建議**：
+    *   **在 `MyRAG.Core` 內**：
+        *   新增 `Document` 實體類別，包含 `Id`, `Content`, `Metadata` (Dictionary), `Source` 等屬性。
+        *   建立 `IDocumentLoader` 介面。
+        *   實作**零依賴**的讀取器：例如 `TextLoader` 或 `MarkdownLoader`（使用原生 `System.IO.File` 即可）。
+    *   **建立獨立的擴充專案**：
+        *   例如建立 `MyRAG.DataLoaders.Pdf` 專案，在其中實作 `PdfLoader : IDocumentLoader` 並引入所需的 PDF 解析套件。
+        *   當主程式 (`MyAgentFramework`) 需要讀取 PDF 時，才額外參考這個擴充專案。這樣可以保持框架的靈活性與乾淨的依賴關係。
 
 ### 2. 向量資料庫抽象層 (Vector Store Abstraction)
 目前雖然有產生 Embedding 的服務，但沒有定義如何儲存與檢索這些 Embedding。
