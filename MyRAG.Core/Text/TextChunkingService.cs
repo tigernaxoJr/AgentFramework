@@ -21,6 +21,10 @@ public class TextChunkingService
     public TextChunkingService(TextChunkingOptions? options = null)
     {
         _options = options ?? new TextChunkingOptions();
+        
+        // 在此使用了 TiktokenTokenizer.CreateForModel("text-embedding-ada-002")。為了讓這個 Tokenizer 在運行時能夠載入 
+        // cl100k_base 編碼數據（這是 OpenAI 多數模型使用的編碼），需要安裝 Microsoft.ML.Tokenizers.Data.Cl100kBase 套件。
+        // 如果沒有這個套件，在執行時可能會遇到找不到編碼數據的錯誤。
         _tokenizer = TiktokenTokenizer.CreateForModel(_options.TokenizerModelName);
     }
 
