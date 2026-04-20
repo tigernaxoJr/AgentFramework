@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ClientModel;
 using Microsoft.Extensions.AI;
 using MyAgentFramework.Tools;
 
