@@ -101,7 +101,30 @@ public class MyService(ITextChunkingService chunkingService)
 }
 ```
 
-### 4. 使用 RRF 排名融合
+### 4. 查詢轉換與優化 (Query Transformation)
+
+解決使用者問題過於簡短或關鍵字不精準的問題：
+
+**註冊服務 (需先註冊 IChatClient):**
+```csharp
+// 選擇其中一種轉換策略
+builder.Services.AddQueryRewriter(); // 查詢重寫/擴充
+// 或
+builder.Services.AddHyDETransformer(); // 產生假設性文件 (HyDE)
+```
+
+**使用方式:**
+```csharp
+public async Task Search(string userQuery)
+{
+    // 注入 IQueryTransformer
+    string optimizedQuery = await queryTransformer.TransformAsync(userQuery);
+    
+    // 使用優化後的 Query 進行檢索...
+}
+```
+
+### 5. 使用 RRF 排名融合
 
 ```csharp
 public class SearchService(IRankFusion rankFusion)

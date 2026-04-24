@@ -10,6 +10,10 @@
 *   **進階切塊策略 (Advanced Chunking)**
     *   [x] 實作 **重疊切塊 (Overlap Chunking)**。
     *   [x] 實作 **語義切塊 (Semantic Chunking)** (基於 Embedding 相似度)。
+*   **查詢轉換與優化 (Query Transformation)**
+    *   [x] 實作 `IQueryTransformer` 介面。
+    *   [x] 實作 Query Rewriter (查詢重寫/擴充)。
+    *   [x] 實作 HyDE (Hypothetical Document Embeddings)。
 
 ## 🚀 待處理 (Next Steps)
 
@@ -22,6 +26,3 @@
 *   **重新排序優化 (Re-ranking)**
     *   [ ] 實作 `IReranker` 介面。
     *   [ ] 接入 Cohere 或 BGE Reranker。
-*   **查詢轉換 (Query Transformation)**
-    *   [ ] 實作 HyDE (Hypothetical Document Embeddings)。
-    *   [ ] 實作 Query Expansion / Rewriting。

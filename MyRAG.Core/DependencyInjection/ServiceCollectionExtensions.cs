@@ -4,6 +4,7 @@ using MyRAG.Core.Embeddings;
 using MyRAG.Core.Interfaces;
 using MyRAG.Core.Ranking;
 using MyRAG.Core.Models;
+using MyRAG.Core.Retrieval;
 
 namespace MyRAG.Core.DependencyInjection;
 
@@ -28,6 +29,24 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEmbeddingService, EmbeddingService>();
         services.AddSingleton<IRankFusion, ReciprocalRankFusion>();
         
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a Query Rewriter to services. Requires an IChatClient to be registered.
+    /// </summary>
+    public static IServiceCollection AddQueryRewriter(this IServiceCollection services)
+    {
+        services.AddSingleton<IQueryTransformer, QueryRewriter>();
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a HyDE Transformer to services. Requires an IChatClient to be registered.
+    /// </summary>
+    public static IServiceCollection AddHyDETransformer(this IServiceCollection services)
+    {
+        services.AddSingleton<IQueryTransformer, HyDETransformer>();
         return services;
     }
 }
