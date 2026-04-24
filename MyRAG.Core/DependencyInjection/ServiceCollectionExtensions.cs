@@ -5,6 +5,7 @@ using MyRAG.Core.Interfaces;
 using MyRAG.Core.Ranking;
 using MyRAG.Core.Models;
 using MyRAG.Core.Retrieval;
+using MyRAG.Core.Storage;
 
 namespace MyRAG.Core.DependencyInjection;
 
@@ -29,6 +30,15 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEmbeddingService, EmbeddingService>();
         services.AddSingleton<IRankFusion, ReciprocalRankFusion>();
         
+        return services;
+    }
+
+    /// <summary>
+    /// Adds an In-Memory Vector Store to services. Requires IEmbeddingService to be registered.
+    /// </summary>
+    public static IServiceCollection AddInMemoryVectorStore(this IServiceCollection services)
+    {
+        services.AddSingleton<IVectorStore, InMemoryVectorStore>();
         return services;
     }
 

@@ -6,4 +6,5 @@ public class Document
     public string Content { get; set; } = string.Empty;
     public Dictionary<string, object> Metadata { get; set; } = new();
     public string? Source { get; set; }
+    public ReadOnlyMemory<float>? Embedding { get; set; }
 }

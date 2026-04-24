@@ -15,17 +15,11 @@
     *   **在 `MyRAG.Core` 內**：建立 `IDocumentLoader` 介面，並實作零依賴的讀取器（如 `TextLoader`, `MarkdownLoader`）。
     *   **建立獨立的擴充專案**：例如 `MyRAG.DataLoaders.Pdf`，避免核心專案過於臃腫。
 
-### 2. 向量資料庫抽象層 (Vector Store Abstraction)
-目前已經定義了 `IVectorStore` 介面，但尚無具體的 Provider 實作。
-*   **功能建議**：
-    *   實作具體的向量儲存 Provider：如 Qdrant, Chroma, Redis, 甚至 in-memory 供測試使用。
-    *   這可以讓主專案 (MyAgentFramework) 自由抽換底層的資料庫。
-
-### 3. 更進階的切塊策略 (Advanced Chunking Strategies)
+### 2. 更進階的切塊策略 (Advanced Chunking Strategies)
 *   **功能建議**：
     *   **Markdown/HTML 感知切塊**：根據 Header (`#`, `##`) 與標籤進行切塊，保留文件結構。
 
-### 4. 重新排序 (Re-ranking)
+### 3. 重新排序 (Re-ranking)
 目前已經定義了 `IReranker` 介面。
 *   **功能建議**：
     *   實作接入 Cohere Rerank API、BGE-Reranker (透過 ONNX 跑在地端) 等等。Reranker 會吃 `(Query, Document)` pair 並給出精準相關性分數，這對於混合搜尋尤其重要。

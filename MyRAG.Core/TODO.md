@@ -18,7 +18,8 @@
 ## 🚀 待處理 (Next Steps)
 
 *   **向量資料庫實作 (Vector Store Implementation)**
-    *   [ ] 實作 `IVectorStore` 的具體 Provider (例如 Qdrant, Chroma 或 In-memory)。
+    *   [x] 實作 `IVectorStore` 介面。
+    *   [x] 實作 `InMemoryVectorStore` (內嵌相似度檢索)。
 *   **文件讀取器 (Document Loaders)**
     *   [ ] 建立 `IDocumentLoader` 介面。
     *   [ ] 實作 `TextLoader` 與 `MarkdownLoader`。

@@ -124,7 +124,29 @@ public async Task Search(string userQuery)
 }
 ```
 
-### 5. 使用 RRF 排名融合
+### 5. 向量資料庫與存儲 (Vector Store)
+
+提供資料的持久化儲存與相似度檢索功能：
+
+**註冊服務:**
+```csharp
+// 註冊記憶體內部的向量資料庫 (適合測試與小型應用)
+builder.Services.AddInMemoryVectorStore();
+```
+
+**使用方式:**
+```csharp
+public async Task ManageDocs(IVectorStore vectorStore, List<Document> docs)
+{
+    // 匯入文件 (若文件無 Embedding，Store 會自動呼叫 IEmbeddingService 產生)
+    await vectorStore.UpsertAsync(docs);
+    
+    // 相似度搜尋
+    var results = await vectorStore.SearchAsync("如何實作 RAG?", topK: 3);
+}
+```
+
+### 6. 使用 RRF 排名融合
 
 ```csharp
 public class SearchService(IRankFusion rankFusion)
