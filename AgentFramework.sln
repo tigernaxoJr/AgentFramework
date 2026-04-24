@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11626.173
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRAG.Core", "MyRAG.Core\MyRAG.Core.csproj", "{FBD841FF-33D1-D335-E756-476390D3F818}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyAgentFramework", "MyAgentFramework\MyAgentFramework.csproj", "{9B60DEEE-3D9B-A6FA-F6CE-BE90C2AA0280}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FBD841FF-33D1-D335-E756-476390D3F818}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBD841FF-33D1-D335-E756-476390D3F818}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBD841FF-33D1-D335-E756-476390D3F818}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBD841FF-33D1-D335-E756-476390D3F818}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B60DEEE-3D9B-A6FA-F6CE-BE90C2AA0280}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B60DEEE-3D9B-A6FA-F6CE-BE90C2AA0280}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B60DEEE-3D9B-A6FA-F6CE-BE90C2AA0280}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B60DEEE-3D9B-A6FA-F6CE-BE90C2AA0280}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {07A53C5B-D734-4127-AC6A-F48D6490FEC0}
+	EndGlobalSection
+EndGlobal
