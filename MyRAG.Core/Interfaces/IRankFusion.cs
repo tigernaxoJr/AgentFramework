@@ -1,4 +1,6 @@
-namespace MyRAG.Core.Ranking;
+using MyRAG.Core.Models;
+
+namespace MyRAG.Core.Interfaces;
 
 public interface IRankFusion
 {

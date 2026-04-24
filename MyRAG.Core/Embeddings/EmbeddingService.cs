@@ -1,8 +1,9 @@
 using Microsoft.Extensions.AI;
+using MyRAG.Core.Interfaces;
 
 namespace MyRAG.Core.Embeddings;
 
-public class EmbeddingService
+public class EmbeddingService : IEmbeddingService
 {
     private readonly IEmbeddingGenerator<string, Embedding<float>> _generator;
 

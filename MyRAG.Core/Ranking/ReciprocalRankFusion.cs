@@ -1,5 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
+using MyRAG.Core.Interfaces;
+using MyRAG.Core.Models;
 
 namespace MyRAG.Core.Ranking;
 
