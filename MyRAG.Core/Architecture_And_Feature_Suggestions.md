@@ -28,12 +28,12 @@
 
 ## 二、 專案架構修改建議 (Architecture Refactoring)
 
-### 1. 引入 Pipeline 模式 (RAG Pipeline)
+### 1. 引入 Pipeline 模式 (RAG Pipeline) **(已實作)**
 RAG 的流程是高度模組化且循序漸進的。可以設計 Pipeline 模式來串接不同的元件。
-*   **修改建議**：
-    *   設計 **Ingestion Pipeline (資料匯入管線)**：`DocumentLoader` -> `TextChunker` -> `EmbeddingGenerator` -> `VectorStore`
-    *   設計 **Retrieval Pipeline (檢索管線)**：`QueryTransformer` -> `Retriever` -> `RankFusion/Reranker`
-    *   建立一個 `RagEngine` 或 `RetrievalChain` 類別來編排這些流程。
+*   **目前進度**：已於 `MyRAG.Core.Pipelines` 實作以下元件：
+    *   **Ingestion Pipeline (資料匯入管線)**：支援 `DocumentLoader` -> `TextChunker` -> `VectorStore` (內含 `EmbeddingGenerator`)。
+    *   **Retrieval Pipeline (檢索管線)**：支援 `QueryTransformer` -> `Retriever` -> `RankFusion` -> `Reranker`。
+    *   **RagEngine**：負責整合並統一提供 Ingestion 與 Retrieval 管線的入口。
 
 ---
 

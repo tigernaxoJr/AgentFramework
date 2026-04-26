@@ -16,7 +16,12 @@
 *   內建 **RRF (Reciprocal Rank Fusion)** 演算法實作。
 *   能夠將來自不同來源（如向量搜尋與關鍵字搜尋）的排序結果進行科學化的權重融合。
 
-### 4. 現代化架構設計
+### 4. RAG 處理管線與引擎 (Pipelines & Engine)
+*   **Ingestion Pipeline**：整合文件讀取、自動切塊與向量資料庫儲存的資料匯入流程。
+*   **Retrieval Pipeline**：整合查詢轉換、向量檢索、多路融合與重新排序的資料檢索流程。
+*   **RagEngine**：集中管理上述雙管線的單一入口點。
+
+### 5. 現代化架構設計
 *   **介面優先 (Interface-First)**：所有核心功能皆定義在 `Interfaces` 下，方便模組抽換與 Mock 測試。
 *   **標準化模型**：統一的 `Document` 與 `RankedItem` 實體，簡化 Pipeline 的建立。
 *   **DI 友善**：內建依賴注入擴充方法，一鍵完成核心服務註冊。
@@ -31,6 +36,7 @@ MyRAG.Core/
 ├── Interfaces/             # 核心介面 (ITextChunker, IEmbeddingService, etc.)
 ├── Chunking/               # 文本切塊實作 (Semantic Kernel Based)
 ├── Embeddings/             # 向量生成實作
+├── Pipelines/              # 管線與引擎實作 (Ingestion, Retrieval, RagEngine)
 ├── Ranking/                # 排名演算法實作 (RRF)
 ├── Extensions/             # 通用擴充工具
 └── DependencyInjection/    # DI 服務註冊工具
@@ -143,6 +149,33 @@ public class SearchService(IRankFusion rankFusion)
     {
         var fused = rankFusion.Fuse(new[] { vecResults, kwResults }, take: 10);
         return fused.Select(x => x.Item).ToList();
+    }
+}
+```
+
+### 7. 使用 RagEngine 統一處理流程
+
+`RagEngine` 封裝了上述所有的複雜邏輯，提供一致的管線：
+
+**註冊服務:**
+```csharp
+// 註冊所需元件與引擎
+builder.Services.AddRagPipelines();
+```
+
+**使用方式:**
+```csharp
+public async Task ProcessRag(IRagEngine engine, List<Document> docs, string query)
+{
+    // 匯入資料管線 (自動處理：切塊 -> 生成 Embedding -> 儲存)
+    await engine.Ingestion.IngestAsync(docs);
+    
+    // 檢索資料管線 (自動處理：Query 轉換 -> 向量搜尋 -> 融合/Rerank)
+    var results = await engine.Retrieval.RetrieveAsync(query, topK: 3);
+    
+    foreach (var result in results)
+    {
+        Console.WriteLine($"Score: {result.Score}, Content: {result.Item.Content}");
     }
 }
 ```

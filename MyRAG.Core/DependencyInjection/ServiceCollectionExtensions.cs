@@ -10,6 +10,7 @@ using MyRAG.Core.Storage;
 using OpenAI;
 using OpenAI.Embeddings;
 using System.ClientModel;
+using MyRAG.Core.Pipelines;
 
 namespace MyRAG.Core.DependencyInjection;
 
@@ -80,6 +81,18 @@ public static class ServiceCollectionExtensions
             return new OpenAICompatibleEmbeddingGenerator(modelId, apiKey, endpoint);
         });
 
+        return services;
+    }
+
+    /// <summary>
+    /// 將 RAG Pipelines 與 RagEngine 加入到服務中。
+    /// 建議在註冊完 ITextChunkingService, IVectorStore, 以及任何需要的 Transformer / Reranker 後呼叫此方法。
+    /// </summary>
+    public static IServiceCollection AddRagPipelines(this IServiceCollection services)
+    {
+        services.AddSingleton<IIngestionPipeline, IngestionPipeline>();
+        services.AddSingleton<IRetrievalPipeline, RetrievalPipeline>();
+        services.AddSingleton<IRagEngine, RagEngine>();
         return services;
     }
 }
