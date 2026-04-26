@@ -10,7 +10,7 @@ using System.Text;
 namespace MyRAG.Core.Chunking;
 
 /// <summary>
-/// Implementation of ITextChunkingService using Semantic Kernel's TextChunker.
+/// 使用 Semantic Kernel 的 TextChunker 實作的 ITextChunkingService。
 /// </summary>
 public class SemanticKernelChunker : ITextChunkingService
 {

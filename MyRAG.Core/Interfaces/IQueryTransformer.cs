@@ -1,15 +1,15 @@
 namespace MyRAG.Core.Interfaces;
 
 /// <summary>
-/// Defines a service that transforms a user query into a higher-quality retrieval query.
+/// 定義查詢轉換服務，用於將使用者的原始查詢轉換為更高品質的檢索查詢。
 /// </summary>
 public interface IQueryTransformer
 {
     /// <summary>
-    /// Transforms the input query.
+    /// 轉換輸入的查詢。
     /// </summary>
-    /// <param name="query">The original user query.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The transformed and optimized query.</returns>
+    /// <param name="query">原始使用者查詢。</param>
+    /// <param name="cancellationToken">取消權杖。</param>
+    /// <returns>轉換和優化後的查詢字串。</returns>
     Task<string> TransformAsync(string query, CancellationToken cancellationToken = default);
 }

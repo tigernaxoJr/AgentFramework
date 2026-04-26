@@ -6,8 +6,8 @@ namespace MyRAG.Core.Extensions;
 public static class EnumerableExtensions
 {
     /// <summary>
-    /// Chunks a sequence based on an aggregate value and a predicate.
-    /// Useful for batching items based on a total weight (e.g., token count).
+    /// 根據聚合值 (Aggregate) 和條件 (Predicate) 將序列分塊。
+    /// 常用於基於總權重 (例如：Token 數量) 來批次處理項目。
     /// </summary>
     public static IEnumerable<List<TSource>> ChunkByAggregate<TSource, TAccumulate>(
         this IEnumerable<TSource> source,

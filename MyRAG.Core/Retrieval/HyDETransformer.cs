@@ -6,7 +6,7 @@ using Microsoft.Extensions.AI;
 namespace MyRAG.Core.Retrieval;
 
 /// <summary>
-/// Implementation of IQueryTransformer that generates a hypothetical document (HyDE) to improve retrieval.
+/// 實作 IQueryTransformer，透過生成假設性文件 (HyDE) 來改善檢索效果。
 /// </summary>
 public class HyDETransformer : IQueryTransformer
 {

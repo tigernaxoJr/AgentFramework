@@ -5,7 +5,7 @@ using MyRAG.Core.Interfaces;
 namespace MyRAG.Core.Retrieval;
 
 /// <summary>
-/// Implementation of IQueryTransformer that rewrites and expands the user query using an LLM.
+/// 實作 IQueryTransformer，使用 LLM 改寫並擴展使用者的查詢。
 /// </summary>
 public class QueryRewriter : IQueryTransformer
 {

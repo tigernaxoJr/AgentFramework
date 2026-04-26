@@ -4,8 +4,8 @@ using MyRAG.Core.Models;
 namespace MyRAG.Core.Ranking;
 
 /// <summary>
-/// Implementation of Reciprocal Rank Fusion (RRF) algorithm.
-/// RRF is used to combine multiple search result lists into a single ranked list.
+/// 實作 Reciprocal Rank Fusion (RRF) 演算法。
+/// RRF 用於將多個搜尋結果列表合併為單一的排名列表。
 /// </summary>
 public class ReciprocalRankFusion : IRankFusion
 {
@@ -48,7 +48,7 @@ public class ReciprocalRankFusion : IRankFusion
     }
 
     /// <summary>
-    /// Legacy compatibility method to match the signature of the original tool.
+    /// 舊版相容方法，用於匹配原始工具的簽章。
     /// </summary>
     public List<T> CombineRRF<T>(List<T> vectorIds, List<T> keywordIds, int take = 5, int k = 60) where T : notnull
     {

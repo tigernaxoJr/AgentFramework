@@ -6,8 +6,8 @@ using System.Numerics.Tensors;
 namespace MyRAG.Core.Storage;
 
 /// <summary>
-/// A simple in-memory implementation of IVectorStore.
-/// Suitable for testing or small-scale applications.
+/// IVectorStore 的簡單記憶體內實作。
+/// 適用於測試或小規模應用。
 /// </summary>
 public class InMemoryVectorStore : IVectorStore
 {

@@ -3,6 +3,9 @@ using MyRAG.Core.Interfaces;
 
 namespace MyRAG.Core.Embeddings;
 
+/// <summary>
+/// 提供生成文本向量嵌入的服務實作。
+/// </summary>
 public class EmbeddingService : IEmbeddingService
 {
     private readonly IEmbeddingGenerator<string, Embedding<float>> _generator;
@@ -13,7 +16,7 @@ public class EmbeddingService : IEmbeddingService
     }
 
     /// <summary>
-    /// Generates embeddings for a list of text chunks.
+    /// 為提供的文本分塊列表生成向量嵌入。
     /// </summary>
     public async Task<List<Embedding<float>>> GenerateEmbeddingsAsync(IEnumerable<string> chunks, CancellationToken cancellationToken = default)
     {
@@ -22,7 +25,7 @@ public class EmbeddingService : IEmbeddingService
     }
 
     /// <summary>
-    /// Generates embeddings for multiple batches of text chunks.
+    /// 為批次處理的文本分塊生成向量嵌入。
     /// </summary>
     public async Task<List<List<Embedding<float>>>> GenerateBatchedEmbeddingsAsync(IEnumerable<IEnumerable<string>> batchedChunks, CancellationToken cancellationToken = default)
     {
