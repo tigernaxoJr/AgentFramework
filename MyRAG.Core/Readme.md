@@ -55,35 +55,23 @@ builder.Services.AddMyRagCore(options => {
 });
 ```
 
-### 2. 注入 Embedding Generator (選用)
+### 2. 注入 Embedding 服務
 
-若要使用「語義切塊」功能，必須注入符合 `IEmbeddingGenerator` 介面的服務。本框架支援 `Microsoft.Extensions.AI` 標準：
+若要使用「語義切塊」或「向量資料庫」功能，必須注入符合 `IEmbeddingGenerator` 介面的服務。本框架內建了對於 OpenAI 相容 API 的快捷設定擴充：
 
-**使用 OpenAI / Ollama (OpenAI SDK):**
+**使用內建的 OpenAI 相容 API 設定 (支援 LM Studio, Ollama, OpenAI 等):**
 ```csharp
-using OpenAI;
-using Microsoft.Extensions.AI;
+using MyRAG.Core.DependencyInjection;
 
-builder.Services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(sp => 
-{
-    var client = new OpenAIClient(new ApiKeyCredential("KEY"), new OpenAIClientOptions { 
-        Endpoint = new Uri("http://localhost:11434/v1/") 
-    });
-    return client.GetEmbeddingClient("model-name").AsIEmbeddingGenerator();
-});
+// 加入相容於 OpenAI 的 Embedding Generator
+builder.Services.AddOpenAICompatibleEmbeddingGenerator(
+    endpoint: "http://localhost:1234/v1", // 填寫你的相容 API 端點
+    apiKey: "lm-studio",                  // 填寫 API Key (本地端通常可填任意值)
+    modelId: "text-embedding-nomic-embed-text-v1.5"
+);
 ```
 
-**使用 Azure OpenAI:**
-```csharp
-using Azure.AI.OpenAI;
-using Microsoft.Extensions.AI;
-
-builder.Services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(sp => 
-{
-    var client = new AzureOpenAIClient(new Uri("ENDPOINT"), new ApiKeyCredential("KEY"));
-    return client.GetEmbeddingClient("deployment").AsIEmbeddingGenerator();
-});
-```
+或者，您也可以自行使用 `Microsoft.Extensions.AI` 標準手動註冊 `IEmbeddingGenerator`（例如使用 Azure OpenAI）。
 
 ### 3. 使用文本切塊
 
