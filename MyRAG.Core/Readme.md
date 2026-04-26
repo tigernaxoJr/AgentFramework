@@ -168,7 +168,8 @@ builder.Services.AddRagPipelines();
 public async Task ProcessRag(IRagEngine engine, List<Document> docs, string query)
 {
     // 匯入資料管線 (自動處理：切塊 -> 生成 Embedding -> 儲存)
-    await engine.Ingestion.IngestAsync(docs);
+    // 預設為 Batched (重疊切塊)，您也可以指定使用 Semantic (語義切塊)
+    await engine.Ingestion.IngestAsync(docs, ChunkingStrategy.Semantic);
     
     // 檢索資料管線 (自動處理：Query 轉換 -> 向量搜尋 -> 融合/Rerank)
     var results = await engine.Retrieval.RetrieveAsync(query, topK: 3);

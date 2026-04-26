@@ -11,13 +11,15 @@ public interface IIngestionPipeline
     /// 執行資料匯入管線。
     /// </summary>
     /// <param name="source">文件來源 (例如檔案路徑或 URL)。</param>
+    /// <param name="chunkingStrategy">選擇要使用的切塊策略。</param>
     /// <param name="cancellationToken">取消權杖。</param>
-    Task IngestAsync(string source, CancellationToken cancellationToken = default);
+    Task IngestAsync(string source, ChunkingStrategy chunkingStrategy = ChunkingStrategy.Batched, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// 將已存在的文件集合直接透過管線處理。
     /// </summary>
     /// <param name="documents">文件集合。</param>
+    /// <param name="chunkingStrategy">選擇要使用的切塊策略。</param>
     /// <param name="cancellationToken">取消權杖。</param>
-    Task IngestAsync(IEnumerable<Document> documents, CancellationToken cancellationToken = default);
+    Task IngestAsync(IEnumerable<Document> documents, ChunkingStrategy chunkingStrategy = ChunkingStrategy.Batched, CancellationToken cancellationToken = default);
 }
