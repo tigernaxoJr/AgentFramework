@@ -120,19 +120,69 @@ public async Task Search(string userQuery)
 
 ### 5. 向量資料庫與存儲 (Vector Store)
 
-提供資料的持久化儲存與相似度檢索功能：
+`MyRAG.Core` 將底層儲存抽象為 `IVectorStore` 介面，讓您可以自由切換不同的資料庫技術棧。
 
-**註冊服務:**
+**預設的測試用服務:**
 ```csharp
-// 註冊記憶體內部的向量資料庫 (適合測試與小型應用)
+// 註冊記憶體內部的向量資料庫 (適合開發測試與小型應用)
 builder.Services.AddInMemoryVectorStore();
 ```
 
-**使用方式:**
+#### 🛠️ 根據不同技術棧實作關聯式資料庫 (PostgreSQL, SQL Server, SQLite)
+
+若您要將 RAG 系統投入生產環境，請根據您的技術棧實作 `IVectorStore`。以下是針對主流關聯式資料庫的實作建議：
+
+**1. PostgreSQL (推薦)**
+PostgreSQL 擁有強大的 `pgvector` 擴充套件，是目前開源關聯式資料庫中處理向量最成熟的選擇。
+*   **技術選擇**：使用 `Npgsql.EntityFrameworkCore.PostgreSQL` 搭配 `pgvector` 擴充。
+*   **實作步驟**：
+    1. 在資料庫中啟用套件：`CREATE EXTENSION vector;`
+    2. 建立實作 `IVectorStore` 的類別（例如 `PgVectorStore`）。
+    3. 在 EF Core 模型中定義 `Vector` 欄位型別，使用 `pgvector` 提供的歐式距離 (`<->`) 或餘弦相似度 (`<=>`) 運算子進行 `SearchAsync`。
+*   **注入方式**：
+    ```csharp
+    // 註冊 EF Core DbContext，並啟用 Vector 支援
+    builder.Services.AddDbContext<MyDbContext>(options => 
+        options.UseNpgsql("ConnectionString", o => o.UseVector()));
+    
+    // 將您的實作註冊為 IVectorStore (通常使用 Scoped)
+    builder.Services.AddScoped<IVectorStore, PgVectorStore>();
+    ```
+
+**2. SQL Server**
+SQL Server 目前可透過外部機制或原生的 T-SQL/JSON 進行計算。
+*   **技術選擇**：
+    *   **方案 A (原生 T-SQL)**：將 Embedding 陣列轉換為 JSON 字串 (或正規化為多筆記錄)，透過自訂的 T-SQL 函式計算餘弦相似度 (Cosine Similarity)。適合向量維度或資料量適中的場景。
+    *   **方案 B (Azure SQL)**：若您使用 Azure SQL，可搭配其原生的 Vector 支援（即將/已經推出）。
+*   **實作步驟**：
+    1. 建立實作 `IVectorStore` 的類別（例如 `SqlServerVectorStore`）。
+    2. 若採方案 A，可在 `SearchAsync` 中透過 EF Core 的 `FromSqlRaw` 或 Dapper 呼叫撰寫好的相似度計算腳本/預存程序。
+*   **注入方式**：
+    ```csharp
+    builder.Services.AddDbContext<MyDbContext>(options => 
+        options.UseSqlServer("ConnectionString"));
+    
+    builder.Services.AddScoped<IVectorStore, SqlServerVectorStore>();
+    ```
+
+**3. SQLite (適合單機、桌面端或行動應用)**
+SQLite 輕量且免安裝伺服器，非常適合搭配 Local LLM 實作純本地端 RAG 應用程式。
+*   **技術選擇**：使用 `sqlite-vss` (Vector Search for SQLite) 擴充套件。
+*   **實作步驟**：
+    1. 安裝 `sqlite-vss` 擴充（注意不同 OS 的原生庫相依性）。
+    2. 建立實作 `IVectorStore` 的類別（例如 `SqliteVectorStore`）。
+    3. 建立包含 `vss0` 虛擬資料表的結構，並在 `SearchAsync` 中使用 `vss_search` 進行查詢。
+*   **注入方式**：
+    ```csharp
+    // 可使用 Entity Framework Core 或 Dapper
+    builder.Services.AddScoped<IVectorStore, SqliteVectorStore>();
+    ```
+
+#### 📌 基本使用方式 (與底層實作無關):
 ```csharp
 public async Task ManageDocs(IVectorStore vectorStore, List<Document> docs)
 {
-    // 匯入文件 (若文件無 Embedding，Store 會自動呼叫 IEmbeddingService 產生)
+    // 匯入文件 (若文件無 Embedding，Store 內部應呼叫 IEmbeddingService 產生)
     await vectorStore.UpsertAsync(docs);
     
     // 相似度搜尋
