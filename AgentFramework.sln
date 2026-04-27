@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.5.11626.173
@@ -8,8 +8,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyAgentFramework", "MyAgentFramework\MyAgentFramework.csproj", "{9B60DEEE-3D9B-A6FA-F6CE-BE90C2AA0280}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRAG.VectorDb.LanceDB", "MyRAG.VectorDb.LanceDB\MyRAG.VectorDb.LanceDB.csproj", "{988D9265-DD9C-4A43-A8D5-D7140E3765AB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRAG.Embeddings.FoundryLocal", "MyRAG.Embeddings.FoundryLocal\MyRAG.Embeddings.FoundryLocal.csproj", "{5B0F9C64-7551-41E5-A921-C1236AF59431}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
