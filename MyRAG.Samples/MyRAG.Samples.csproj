@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MyRAG.Samples</RootNamespace>
+    <AssemblyName>MyRAG.Samples</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 框架參照 -->
+    <ProjectReference Include="..\MyRAG.Core\MyRAG.Core.csproj" />
+    <ProjectReference Include="..\MyRAG.VectorDb.LanceDB\MyRAG.VectorDb.LanceDB.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 執行期 DI / 設定 -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 將設定檔複製到輸出目錄 -->
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.local.json" Condition="Exists('appsettings.local.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
