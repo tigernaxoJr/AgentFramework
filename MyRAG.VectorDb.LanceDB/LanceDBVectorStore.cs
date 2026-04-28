@@ -155,8 +155,8 @@ public class LanceDBVectorStore : IVectorStore
                 Id = row["id"]?.ToString() ?? Guid.NewGuid().ToString(),
                 Content = row["content"]?.ToString() ?? string.Empty,
                 Source = row["source"]?.ToString(),
-                // 將 double[] 轉回 float[]
-                Embedding = new ReadOnlyMemory<float>(((double[])row["vector"]!).Select(v => (float)v).ToArray())
+                // 使用輔助方法進行向量轉換，處理 SDK 可能回傳的不同型別 (如 double[], float[], 或甚至 string)
+                Embedding = ConvertToVector(row["vector"])
             };
 
             var metadataJson = row["metadata"]?.ToString();
@@ -182,5 +182,48 @@ public class LanceDBVectorStore : IVectorStore
         if (_table == null) return;
 
         await _table.Delete($"id = '{documentId}'");
+    }
+
+    /// <summary>
+    /// 將動態型別的向量資料轉換為 ReadOnlyMemory&lt;float&gt;。
+    /// 處理 LanceDB SDK 可能回傳的不同格式。
+    /// </summary>
+    private static ReadOnlyMemory<float> ConvertToVector(object? vectorObj)
+    {
+        if (vectorObj == null) return null;
+
+        // 情況 1: 已經是 float[]
+        if (vectorObj is float[] f) return new ReadOnlyMemory<float>(f);
+
+        // 情況 2: 是 double[] (LanceDB 常見回傳型別)
+        if (vectorObj is double[] d) return new ReadOnlyMemory<float>(d.Select(v => (float)v).ToArray());
+
+        // 情況 3: 是 IEnumerable<double> 或 IEnumerable<float>
+        if (vectorObj is IEnumerable<double> ed) return new ReadOnlyMemory<float>(ed.Select(v => (float)v).ToArray());
+        if (vectorObj is IEnumerable<float> ef) return new ReadOnlyMemory<float>(ef.ToArray());
+
+        // 情況 4: 是字串 (發生於 SDK 將 FixedSizeList 序列化時)
+        if (vectorObj is string s)
+        {
+            try
+            {
+                // 嘗試解析 JSON 陣列格式 "[0.1, 0.2, ...]"
+                var list = JsonSerializer.Deserialize<float[]>(s);
+                if (list != null) return new ReadOnlyMemory<float>(list);
+            }
+            catch 
+            {
+                // 如果不是 JSON，嘗試手動分割
+                try
+                {
+                    var parts = s.Trim('[', ']').Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    var floats = parts.Select(float.Parse).ToArray();
+                    return new ReadOnlyMemory<float>(floats);
+                }
+                catch { /* 解析失敗 */ }
+            }
+        }
+
+        return ReadOnlyMemory<float>.Empty;
     }
 }
