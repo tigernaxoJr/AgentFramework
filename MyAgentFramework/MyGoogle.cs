@@ -16,12 +16,16 @@ namespace MyAgentFramework
         {
             var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
             var modelId = Environment.GetEnvironmentVariable("OPENAI_API_MODEL");
+            var embeddingModelId = Environment.GetEnvironmentVariable("OPENAI_API_EMBEDDING_MODEL");
 
             OpenAIClient client = new OpenAIClient(new ApiKeyCredential(apiKey), new OpenAIClientOptions()
             {
                 Endpoint = new Uri("https://generativelanguage.googleapis.com/v1beta/openai/v1/")
             });
             var chatClient = client.GetChatClient(modelId);
+            var embeddingClient = client.GetEmbeddingClient(embeddingModelId);
+            var embedding = await embeddingClient.GenerateEmbeddingAsync("Hello world");
+            ReadOnlyMemory<float> embeddingVector = embedding.Value.ToFloats();
 
             AIAgent agent = chatClient.AsAIAgent(
                 instructions: "You are a helpful assistant running locally via Ollama.",

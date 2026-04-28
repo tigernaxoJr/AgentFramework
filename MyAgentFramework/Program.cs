@@ -11,5 +11,6 @@ DotEnv.Load();
 // Requires: dotnet add package Microsoft.Extensions.AI.Ollama --prerelease
 //var result = await MyOpenAI.test();
 //Console.WriteLine(result);
+await MyGoogle.test();
 await new TextChunkingAndEmbedding().RunAsync();
 Console.ReadLine();
