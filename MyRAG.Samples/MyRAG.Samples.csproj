@@ -21,10 +21,14 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.7" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- 將設定檔複製到輸出目錄 -->
+    <None Update="appsettings.local.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
