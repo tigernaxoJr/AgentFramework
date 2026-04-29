@@ -204,11 +204,9 @@ public class LanceDBVectorStore : IVectorStore
         await EnsureInitializedAsync();
         if (_table == null) return;
 
-        // 1. 壓縮碎小檔案以提升效能
-        await _table.CompactFiles();
-
-        // 2. 物理刪除已標記為刪除的資料與過期版本（預設保留最近版本）
-        await _table.CleanupOldVersions();
+        // LanceDB 2.3.0+ 使用單一的 Optimize 方法
+        // 傳入 TimeSpan.Zero 強制立即清理所有舊版本
+        await _table.Optimize(TimeSpan.Zero, true);
     }
 
     /// <summary>

@@ -166,10 +166,21 @@ public class SqlServerVectorStore : IVectorStore
     }
 
     /// <inheritdoc />
-    public Task OptimizeAsync(CancellationToken cancellationToken = default)
+    public async Task OptimizeAsync(CancellationToken cancellationToken = default)
     {
-        // SQL Server 的索引維護通常由 DBCC 或維護計畫執行，此處暫不做特定操作
-        return Task.CompletedTask;
+        using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        // 1. 重新整理索引 (解決刪除與新增導致的碎片化)
+        string sql = $@"
+            IF EXISTS (SELECT * FROM sys.tables WHERE name = '{_tableName}')
+            BEGIN
+                ALTER INDEX ALL ON [{_tableName}] REORGANIZE;
+            END";
+        await connection.ExecuteAsync(sql);
+
+        // 2. 收縮資料庫以物理釋放空間回作業系統
+        await connection.ExecuteAsync("DBCC SHRINKDATABASE(0);");
     }
 
     private static float CosineSimilarity(ReadOnlySpan<float> vec1, ReadOnlySpan<float> vec2)
