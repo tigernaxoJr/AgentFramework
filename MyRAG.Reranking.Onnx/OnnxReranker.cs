@@ -102,6 +102,22 @@ public sealed class OnnxReranker : IReranker, IDisposable
             inputs.Add(NamedOnnxValue.CreateFromTensor("token_type_ids", new DenseTensor<long>(typeIds.AsMemory(), shape)));
         }
 
+        // 檢查模型是否需要 position_ids
+        if (_session.InputMetadata.ContainsKey("position_ids"))
+        {
+            var posIds = new long[ids.Length];
+            for (int i = 0; i < ids.Length; i++) posIds[i] = i;
+            inputs.Add(NamedOnnxValue.CreateFromTensor("position_ids", new DenseTensor<long>(posIds.AsMemory(), shape)));
+        }
+
+        // 檢查並提供 past_key_values (部分模型強制要求)
+        foreach (var inputName in _session.InputMetadata.Keys.Where(k => k.StartsWith("past_key_values")))
+        {
+            var emptyShape = new int[] { 1, 8, 0, 128 }; // 根據常見結構提供空的 Tensor
+            var emptyTensor = new DenseTensor<float>(new float[0], emptyShape);
+            inputs.Add(NamedOnnxValue.CreateFromTensor(inputName, emptyTensor));
+        }
+
         using var results = _session.Run(inputs);
         
         // Reranker 通常輸出單個分數 (Logits)

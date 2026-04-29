@@ -68,6 +68,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddTransient<LanceDBRetrievalExample>();
         services.AddTransient<RagEngineEndToEndExample>();
         services.AddTransient<OnnxEmbeddingExample>();
+        services.AddTransient<OnnxRerankingExample>();
     })
     .Build();
 
@@ -95,6 +96,7 @@ while (true)
         ("04", "LanceDB - 語義搜尋 (Retrieval)               [需要 Embedding API]"),
         ("05", "RagEngine 端對端流程 (End-to-End)             [需要 Embedding API]"),
         ("07", "ONNX 本地向量生成 (DirectML 加速)              [離線可執行，需模型檔案]"),
+        ("08", "ONNX 本地 Reranking (DirectML 加速)            [離線可執行，需模型檔案]"),
         ("00", "離開")
     };
 
@@ -135,6 +137,9 @@ while (true)
                 break;
             case "07":
                 await sp.GetRequiredService<OnnxEmbeddingExample>().RunAsync();
+                break;
+            case "08":
+                await sp.GetRequiredService<OnnxRerankingExample>().RunAsync();
                 break;
             case "00":
             case "exit":
