@@ -53,8 +53,9 @@ dotnet run
   [02] 語義切塊 (Semantic Chunking)                  [需要 Embedding API]
   [03] LanceDB - 資料匯入 (Ingestion)               [需要 Embedding API]
   [04] LanceDB - 語義搜尋 (Retrieval)               [需要 Embedding API]
-  [05] RagEngine 端對端流程 (End-to-End)             [需要 Embedding API]
+  [05] RagEngine 端對端流程 (End-to-End)             [需要 Embedding & Chat API]
   [07] ONNX 本地向量生成 (DirectML 加速)              [離線可執行，需模型檔案]
+  [08] ONNX 本地 Reranking (DirectML 加速)            [離線可執行，需模型檔案]
   [00] 離開
 ```
 
@@ -62,88 +63,45 @@ dotnet run
 
 ## ⚙️ 設定說明
 
-### `appsettings.json`（預設值，提交至 git）
+### `appsettings.json`（預設值）
 
 ```json
 {
   "Embedding": {
-    "Endpoint": "http://localhost:1234/v1",
-    "ApiKey": "lm-studio",
-    "ModelId": "text-embedding-nomic-embed-text-v1.5"
+    "Provider": "Onnx",
+    "Endpoint": "https://generativelanguage.googleapis.com/v1beta/openai/",
+    "ApiKey": "YOUR_API_KEY",
+    "ModelId": "text-embedding-004"
   },
-  "LanceDB": {
-    "Path": "./lancedb_data",
-    "TableName": "documents"
-  }
-}
-```
-
-### `appsettings.local.json`（本地覆蓋，已加入 `.gitignore`，不會上傳）
-
-在此填入您的實際 API 資訊，格式相同，只需覆蓋需要修改的欄位即可。
-
-**LM Studio 設定範例：**
-```json
-{
-  "Embedding": {
-    "Endpoint": "http://localhost:1234/v1",
-    "ApiKey": "lm-studio",
-    "ModelId": "nomic-embed-text-v1.5"
-  }
-}
-```
-
-**Ollama 設定範例：**
-```json
-{
-  "Embedding": {
-    "Endpoint": "http://localhost:11434/v1",
-    "ApiKey": "ollama",
-    "ModelId": "nomic-embed-text"
-  }
-}
-```
-
-**OpenAI 設定範例：**
-```json
-{
-  "Embedding": {
-    "Endpoint": "https://api.openai.com/v1",
-    "ApiKey": "sk-...",
-    "ModelId": "text-embedding-3-small"
-  }
-}
-```
-
-**ONNX 本地加速設定範例 (Radeon 780M 適用)：**
-```json
-{
-  "Embedding": {
-    "Provider": "Onnx"
+  "Chat": {
+    "Endpoint": "https://generativelanguage.googleapis.com/v1beta/openai/",
+    "ApiKey": "YOUR_API_KEY",
+    "ModelId": "gemini-1.5-flash"
   },
-  "OnnxEmbedding": {
-    "ModelPath": "D:\\onnx\\qwen3-embedding-0.6B\\model_quantized.onnx",
-    "TokenizerPath": "D:\\onnx\\qwen3-embedding-0.6B\\tokenizer.json",
-    "UseGPU": true
+  "OnnxReranker": {
+    "Enabled": true,
+    "ModelPath": "D:\\models\\reranker\\model.onnx",
+    "TokenizerPath": "D:\\models\\reranker\\tokenizer.json"
   }
 }
 ```
 
-> [!IMPORTANT]
-> 範例 03～05 會在 `./lancedb_data/` 目錄建立持久化的向量資料庫。**請先執行範例 03 匯入資料，再執行範例 04 進行查詢。**
+> [!TIP]
+> **範例 05** 同時需要 `Embedding` (向量生成) 與 `Chat` (查詢擴展與 Prompt 生成) 的 API 連線。
 
 ---
 
 ## 📚 範例一覽
 
-| # | 名稱 | 核心技術 | 需要 API | 建議閱讀順序 |
+| # | 名稱 | 核心技術 | 需要 API | 說明 |
 |---|------|----------|----------|------------|
-| [01](./Samples/01_BasicChunking/README.md) | 基礎重疊切塊 | `ITextChunkingService.CreateBatchedChunks` | ❌ | ⭐ 從這裡開始 |
-| [02](./Samples/02_SemanticChunking/README.md) | 語義切塊 | `ITextChunkingService.CreateSemanticChunksAsync` | ✅ | |
-| [03](./Samples/03_LanceDB_Ingestion/README.md) | LanceDB 匯入 | `IVectorStore.UpsertAsync` | ✅ | 先於 04 執行 |
-| [04](./Samples/04_LanceDB_Retrieval/README.md) | LanceDB 搜尋 | `IVectorStore.SearchAsync` | ✅ | 需先跑 03 |
-| [05](./Samples/05_RagEngine_EndToEnd/README.md) | RagEngine 端對端 | `IRagEngine` 完整管線 | ✅ | |
-| [07](./Samples/07_Onnx_Embedding/README.md) | ONNX 本地向量 | `OnnxEmbeddingGenerator` (DirectML) | ❌ | 適用離線環境 |
+| [01](./Samples/01_BasicChunking/README.md) | 基礎重疊切塊 | `ITextChunkingService` | ❌ | ⭐ 從這裡開始 |
+| [02](./Samples/02_SemanticChunking/README.md) | 語義切塊 | `ITextChunkingService` | ✅ | 基於 Embedding 的切塊 |
+| [03](./Samples/03_LanceDB_Ingestion/README.md) | LanceDB 匯入 | `IVectorStore.UpsertAsync` | ✅ | **支援去重與 Optimize** |
+| [04](./Samples/04_LanceDB_Retrieval/README.md) | LanceDB 搜尋 | `IVectorStore.SearchAsync` | ✅ | 基礎語義搜尋 |
+| [05](./Samples/05_RagEngine_EndToEnd/README.md) | **黃金端對端流程** | `IRagEngine` | ✅ | **最強範例：含 Query Expansion, Rerank 與 Prompt 生成** |
+| [07](./Samples/07_Onnx_Embedding/README.md) | ONNX 本地向量 | `DirectML` 加速 | ❌ | 離線 Embedding |
+| [08](./Samples/08_Onnx_Reranking/README.md) | ONNX 本地 Rerank | `DirectML` 加速 | ❌ | 離線二次排序 |
 
 ---
 
@@ -153,18 +111,14 @@ dotnet run
 Program.cs
 │
 ├── Host / DI Container
-│   ├── AddMyRagCore()                    # ITextChunkingService, IEmbeddingService, IRankFusion
-│   ├── AddOpenAICompatibleEmbeddingGenerator()   # IEmbeddingGenerator
-│   ├── AddLanceDBVectorStore()           # IVectorStore → LanceDBVectorStore
-│   └── AddRagPipelines()                 # IIngestionPipeline, IRetrievalPipeline, IRagEngine
+│   ├── AddMyRagCore()                    # 基礎組件
+│   ├── AddOnnxReranker()                 # 註冊 IReranker (若啟用)
+│   ├── AddLanceDBVectorStore()           # 向量資料庫
+│   └── AddRagPipelines()                 # Ingestion/Retrieval/Engine
 │
 └── Interactive Menu
-    ├── BasicChunkingExample              # 注入 ITextChunkingService
-    ├── SemanticChunkingExample           # 注入 ITextChunkingService
-    ├── LanceDBIngestionExample           # 注入 IVectorStore
-    ├── LanceDBRetrievalExample           # 注入 IVectorStore
-    ├── RagEngineEndToEndExample          # 注入 IRagEngine
-    └── OnnxEmbeddingExample              # 注入 IEmbeddingService (使用 OnnxEmbeddingGenerator)
+    ├── RagEngineEndToEndExample          # 注入 IRagEngine, IChatClient, IReranker?
+    └── ...其他範例...
 ```
 
 所有範例類別繼承自 `Infrastructure/SampleBase.cs`，提供統一的彩色 Console 輸出工具。

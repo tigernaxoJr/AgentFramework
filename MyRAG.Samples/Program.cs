@@ -6,7 +6,7 @@ using MyRAG.VectorDb.LanceDB.Extensions;
 using MyRAG.Samples.Samples;
 using MyRAG.Embeddings.Onnx.Extensions;
 using MyRAG.Reranking.Onnx.Extensions;
-
+using Microsoft.Extensions.AI;
 
 // ── 建立 Host ───────────────────────────────────────────────────────────────
 var host = Host.CreateDefaultBuilder(args)
@@ -27,8 +27,23 @@ var host = Host.CreateDefaultBuilder(args)
         //   services.AddSingleton(new TextChunkingOptions { MaxTokensPerParagraph = 200, ... });
         services.AddMyRagCore();
 
-        // 2. Embedding Generator
+        // 2. Chat Client & Embedding Generator
         var provider = cfg["Embedding:Provider"] ?? "OpenAI";
+        
+        // 註冊 IChatClient (用於 Query Expansion, Prompt 生成等)
+        services.AddSingleton<IChatClient>(sp => 
+        {
+            var chatModelId = cfg["Chat:ModelId"] ?? "gemini-1.5-flash";
+            var chatApiKey = cfg["Chat:ApiKey"] ?? cfg["Embedding:ApiKey"]!;
+            var chatEndpoint = cfg["Chat:Endpoint"] ?? cfg["Embedding:Endpoint"]!;
+
+            var openAIClient = new OpenAI.OpenAIClient(
+                new System.ClientModel.ApiKeyCredential(chatApiKey),
+                new OpenAI.OpenAIClientOptions { Endpoint = new Uri(chatEndpoint) });
+            
+            return openAIClient.GetChatClient(chatModelId).AsIChatClient();
+        });
+
         if (provider.Equals("Onnx", StringComparison.OrdinalIgnoreCase))
         {
             services.AddOnnxEmbeddingGenerator(

@@ -35,11 +35,10 @@ RAG 的核心引擎，定義了所有介面與基礎實作：
 ### 6. [MyRAG.Samples](./MyRAG.Samples)
 豐富的範例程式集，包含：
 - 基礎與語義切塊示範。
-- LanceDB 資料匯入與檢索。
+- LanceDB 資料匯入、去重與優化示範。
 - SQL Server 向量搜尋示範。
-- ONNX 本地向量生成示範。
-- ONNX 本地 Reranking 排序示範。
-- 進階 RAG 流程 (包含查詢擴展、重疊切塊與 Rerank)。
+- ONNX 本地向量生成與 Reranking 示範。
+- **範例 05：黃金端對端流程** (包含語義切塊、Query Expansion、向量檢索、ONNX Rerank 與最終 Prompt 生成)。
 
 ---
 

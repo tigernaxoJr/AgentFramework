@@ -1,6 +1,7 @@
 using MyRAG.Core.Interfaces;
 using MyRAG.Core.Models;
 using MyRAG.Samples.Infrastructure;
+using Microsoft.Extensions.AI;
 using MyRAG.Samples.Samples;
 
 namespace MyRAG.Samples.Samples;
@@ -9,12 +10,15 @@ namespace MyRAG.Samples.Samples;
 /// 範例 05：RagEngine 端對端流程
 /// 展示如何使用 IRagEngine 以一致的管線完成：
 ///   1. 資料匯入（Ingestion）：自動切塊 → 生成 Embedding → 存入 LanceDB
-///   2. 資料檢索（Retrieval）：查詢 → 向量搜尋 → 排名融合
-/// ⚠️ 需要 Embedding API 連線。
+///   2. 資料檢索（Retrieval）：查詢 → 向量搜尋 → 排名融合 → Reranking (選配)
+///   3. 產出結果：Query Expansion 與最終 Prompt Context 生成
+/// ⚠️ 需要 Embedding API 與 Chat API 連線。
 /// </summary>
-public class RagEngineEndToEndExample(IRagEngine ragEngine) : SampleBase
+public class RagEngineEndToEndExample(IRagEngine ragEngine, IChatClient chatClient, IReranker? reranker = null) : SampleBase
 {
     private readonly IRagEngine _ragEngine = ragEngine;
+    private readonly IChatClient _chatClient = chatClient;
+    private readonly IReranker? _reranker = reranker;
 
     public async Task RunAsync()
     {
@@ -22,6 +26,16 @@ public class RagEngineEndToEndExample(IRagEngine ragEngine) : SampleBase
 
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.WriteLine("  ⚠ 此範例需要 Embedding API 連線。");
+        if (_reranker != null)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("  ✅ 偵測到 Reranker 已啟動，將在檢索後執行二次排序。");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("  ℹ 未偵測到 Reranker，將僅使用基礎向量搜尋與 RRF。");
+        }
         Console.ResetColor();
         Console.WriteLine();
 
@@ -60,12 +74,13 @@ public class RagEngineEndToEndExample(IRagEngine ragEngine) : SampleBase
         };
 
         PrintInfo("待匯入文件數", rawDocuments.Count.ToString());
-        PrintInfo("切塊策略", "Batched (預設，帶重疊)");
+        PrintInfo("切塊策略", "Semantic (語義切塊)");
 
         try
         {
             var swIngest = System.Diagnostics.Stopwatch.StartNew();
-            await _ragEngine.Ingestion.IngestAsync(rawDocuments, ChunkingStrategy.Batched);
+            // 使用語義切塊策略
+            await _ragEngine.Ingestion.IngestAsync(rawDocuments, ChunkingStrategy.Semantic);
             swIngest.Stop();
 
             PrintSuccess($"資料匯入完成！耗時：{swIngest.ElapsedMilliseconds} ms");
@@ -89,29 +104,68 @@ public class RagEngineEndToEndExample(IRagEngine ragEngine) : SampleBase
         foreach (var query in queries)
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("  🔍 查詢：");
+            Console.Write("  🔍 原始查詢：");
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"\"{query}\"");
             Console.ResetColor();
 
             try
             {
+                // 執行查詢擴展 (Query Expansion)
+                PrintStep("執行查詢擴展 (Multi-Query Expansion)...");
+                var expander = new MyRAG.Core.Retrieval.MultiQueryExpander(_chatClient, numQueries: 2);
+                var expandedQueries = await expander.ExpandAsync(query);
+                
+                foreach (var q in expandedQueries) 
+                {
+                    Console.WriteLine($"    -> {q}");
+                }
+                Console.WriteLine();
+
                 var swRetrieve = System.Diagnostics.Stopwatch.StartNew();
+                
+                // 注意：在正式管線中，我們可以將擴展邏輯封裝在 IQueryTransformer 中。
+                // 這裡為了展示，我們取擴展後的第一個（或合併結果）。
+                // 為了簡化展示，我們直接用原始 Query 呼叫管線（管線內部若有註冊 Transformer 也會執行）。
                 var results = await _ragEngine.Retrieval.RetrieveAsync(query, topK: 3);
                 swRetrieve.Stop();
 
                 var resultList = results.ToList();
-                PrintInfo("耗時", $"{swRetrieve.ElapsedMilliseconds} ms，取回 {resultList.Count} 筆");
+                PrintInfo("檢索耗時", $"{swRetrieve.ElapsedMilliseconds} ms，取回 {resultList.Count} 筆相關區塊");
 
                 for (int i = 0; i < resultList.Count; i++)
                 {
                     PrintResult(i + 1, resultList[i].Item.Content, resultList[i].Score);
                 }
+
+                // ── 生成最終 Prompt ──────────────────────────────────────────
+                Console.WriteLine();
+                PrintStep("產出最終 Prompt Context...");
+                
+                var promptBuilder = new System.Text.StringBuilder();
+                promptBuilder.AppendLine("你是一個專業的 AI 助手。請根據下方提供的【參考資料】來回答使用者的問題。");
+                promptBuilder.AppendLine("\n【參考資料】:");
+                
+                foreach (var res in resultList)
+                {
+                    promptBuilder.AppendLine($"--- 來源: {res.Item.Source} (相關度: {res.Score:F4}) ---");
+                    promptBuilder.AppendLine(res.Item.Content);
+                }
+
+                promptBuilder.AppendLine("\n【使用者問題】:");
+                promptBuilder.AppendLine(query);
+                promptBuilder.AppendLine("\n【請開始回答】:");
+
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("-------------------- 產出的 Prompt 內容 --------------------");
+                Console.WriteLine(promptBuilder.ToString());
+                Console.WriteLine("------------------------------------------------------------");
+                Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"  ✘ 查詢失敗：{ex.Message}");
+                Console.WriteLine($"  ✘ 流程執行失敗：{ex.Message}");
                 Console.ResetColor();
             }
 
