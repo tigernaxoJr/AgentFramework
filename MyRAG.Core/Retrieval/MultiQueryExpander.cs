@@ -31,7 +31,7 @@ Provide these alternative queries separated by newlines. Do not include numberin
 
 Original query: {query}";
 
-        var agent = _chatClient.AsAIAgent(instructions: "You are a query expansion assistant.");
+        var agent = _chatClient.AsAIAgent();
         var response = await agent.RunAsync(prompt, cancellationToken: cancellationToken);
 
         var lines = response.Text?.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)

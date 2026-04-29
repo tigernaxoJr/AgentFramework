@@ -27,7 +27,7 @@ public class QueryRewriter : IQueryTransformer
         var prompt = _promptTemplate.Replace("{query}", query);
 
         // 建立 Agent
-        var agent = _chatClient.AsAIAgent(instructions: "You are helpful");
+        var agent = _chatClient.AsAIAgent();
 
         // 執行並取得回應
         AgentResponse response = await agent.RunAsync(prompt, cancellationToken: cancellationToken);
