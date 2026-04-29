@@ -21,7 +21,8 @@
 |------|------|
 | .NET SDK | 10.0 或以上 |
 | Embedding API | 本地：[LM Studio](https://lmstudio.ai/) / [Ollama](https://ollama.com/)，或任何 OpenAI 相容端點 |
-| 範例 01 | **無需 API**，可完全離線執行 |
+| ONNX 模型 | 範例 07 需下載模型檔 (如 Qwen3-Embedding) 至指定路徑 |
+| 範例 01, 07 | **無需 API**，可完全離線執行 (07 需要本地模型檔) |
 | 範例 02-05 | 需要 Embedding API（見[設定說明](#-設定說明)） |
 
 ---
@@ -53,6 +54,7 @@ dotnet run
   [03] LanceDB - 資料匯入 (Ingestion)               [需要 Embedding API]
   [04] LanceDB - 語義搜尋 (Retrieval)               [需要 Embedding API]
   [05] RagEngine 端對端流程 (End-to-End)             [需要 Embedding API]
+  [07] ONNX 本地向量生成 (DirectML 加速)              [離線可執行，需模型檔案]
   [00] 離開
 ```
 
@@ -113,6 +115,20 @@ dotnet run
 }
 ```
 
+**ONNX 本地加速設定範例 (Radeon 780M 適用)：**
+```json
+{
+  "Embedding": {
+    "Provider": "Onnx"
+  },
+  "OnnxEmbedding": {
+    "ModelPath": "D:\\onnx\\qwen3-embedding-0.6B\\model_quantized.onnx",
+    "TokenizerPath": "D:\\onnx\\qwen3-embedding-0.6B\\tokenizer.json",
+    "UseGPU": true
+  }
+}
+```
+
 > [!IMPORTANT]
 > 範例 03～05 會在 `./lancedb_data/` 目錄建立持久化的向量資料庫。**請先執行範例 03 匯入資料，再執行範例 04 進行查詢。**
 
@@ -127,6 +143,7 @@ dotnet run
 | [03](./Samples/03_LanceDB_Ingestion/README.md) | LanceDB 匯入 | `IVectorStore.UpsertAsync` | ✅ | 先於 04 執行 |
 | [04](./Samples/04_LanceDB_Retrieval/README.md) | LanceDB 搜尋 | `IVectorStore.SearchAsync` | ✅ | 需先跑 03 |
 | [05](./Samples/05_RagEngine_EndToEnd/README.md) | RagEngine 端對端 | `IRagEngine` 完整管線 | ✅ | |
+| [07](./Samples/07_Onnx_Embedding/README.md) | ONNX 本地向量 | `OnnxEmbeddingGenerator` (DirectML) | ❌ | 適用離線環境 |
 
 ---
 
@@ -146,7 +163,8 @@ Program.cs
     ├── SemanticChunkingExample           # 注入 ITextChunkingService
     ├── LanceDBIngestionExample           # 注入 IVectorStore
     ├── LanceDBRetrievalExample           # 注入 IVectorStore
-    └── RagEngineEndToEndExample          # 注入 IRagEngine
+    ├── RagEngineEndToEndExample          # 注入 IRagEngine
+    └── OnnxEmbeddingExample              # 注入 IEmbeddingService (使用 OnnxEmbeddingGenerator)
 ```
 
 所有範例類別繼承自 `Infrastructure/SampleBase.cs`，提供統一的彩色 Console 輸出工具。

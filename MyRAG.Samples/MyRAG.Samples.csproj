@@ -13,6 +13,7 @@
     <!-- 框架參照 -->
     <ProjectReference Include="..\MyRAG.Core\MyRAG.Core.csproj" />
     <ProjectReference Include="..\MyRAG.VectorDb.LanceDB\MyRAG.VectorDb.LanceDB.csproj" />
+    <ProjectReference Include="..\MyRAG.Embeddings.Onnx\MyRAG.Embeddings.Onnx.csproj" />
   </ItemGroup>
 
   <ItemGroup>

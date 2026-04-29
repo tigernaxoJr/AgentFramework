@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using MyRAG.Core.DependencyInjection;
 using MyRAG.VectorDb.LanceDB.Extensions;
 using MyRAG.Samples.Samples;
+using MyRAG.Embeddings.Onnx.Extensions;
 
 // ── 建立 Host ───────────────────────────────────────────────────────────────
 var host = Host.CreateDefaultBuilder(args)
@@ -24,11 +25,22 @@ var host = Host.CreateDefaultBuilder(args)
         //   services.AddSingleton(new TextChunkingOptions { MaxTokensPerParagraph = 200, ... });
         services.AddMyRagCore();
 
-        // 2. Embedding Generator（OpenAI 相容 API：LM Studio / Ollama / OpenAI）
-        services.AddOpenAICompatibleEmbeddingGenerator(
-            endpoint: cfg["Embedding:Endpoint"]!,
-            apiKey: cfg["Embedding:ApiKey"]!,
-            modelId: cfg["Embedding:ModelId"]!);
+        // 2. Embedding Generator
+        var provider = cfg["Embedding:Provider"] ?? "OpenAI";
+        if (provider.Equals("Onnx", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddOnnxEmbeddingGenerator(
+                modelPath: cfg["OnnxEmbedding:ModelPath"]!,
+                tokenizerPath: cfg["OnnxEmbedding:TokenizerPath"]!,
+                useGPU: bool.Parse(cfg["OnnxEmbedding:UseGPU"] ?? "true"));
+        }
+        else
+        {
+            services.AddOpenAICompatibleEmbeddingGenerator(
+                endpoint: cfg["Embedding:Endpoint"]!,
+                apiKey: cfg["Embedding:ApiKey"]!,
+                modelId: cfg["Embedding:ModelId"]!);
+        }
 
         // 3. LanceDB 向量資料庫
         services.AddLanceDBVectorStore(
@@ -44,6 +56,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddTransient<LanceDBIngestionExample>();
         services.AddTransient<LanceDBRetrievalExample>();
         services.AddTransient<RagEngineEndToEndExample>();
+        services.AddTransient<OnnxEmbeddingExample>();
     })
     .Build();
 
@@ -70,6 +83,7 @@ while (true)
         ("03", "LanceDB - 資料匯入 (Ingestion)               [需要 Embedding API]"),
         ("04", "LanceDB - 語義搜尋 (Retrieval)               [需要 Embedding API]"),
         ("05", "RagEngine 端對端流程 (End-to-End)             [需要 Embedding API]"),
+        ("07", "ONNX 本地向量生成 (DirectML 加速)              [離線可執行，需模型檔案]"),
         ("00", "離開")
     };
 
@@ -107,6 +121,9 @@ while (true)
                 break;
             case "05":
                 await sp.GetRequiredService<RagEngineEndToEndExample>().RunAsync();
+                break;
+            case "07":
+                await sp.GetRequiredService<OnnxEmbeddingExample>().RunAsync();
                 break;
             case "00":
             case "exit":
