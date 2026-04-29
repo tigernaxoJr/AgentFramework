@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace MyRAG.Samples.Samples;
 
+// 建議模型: https://huggingface.co/onnx-community/Qwen3-Embedding-0.6B-ONNX
 public class OnnxEmbeddingExample
 {
     private readonly IEmbeddingService _embeddingService;
@@ -62,7 +63,8 @@ public class OnnxEmbeddingExample
             Console.WriteLine($"[✘] 發生錯誤: {ex.Message}");
             if (ex.InnerException != null) Console.WriteLine($"    內部錯誤: {ex.InnerException.Message}");
             Console.ResetColor();
-            Console.WriteLine("\n請確保已在 D:\\onnx\\qwen3-embedding-0.6B\\ 放置模型檔案。");
+            Console.WriteLine("\n請確保已下載模型並正確設定路徑。");
+            Console.WriteLine("推薦模型下載: https://huggingface.co/onnx-community/Qwen3-Embedding-0.6B-ONNX");
         }
 
         Console.WriteLine("\n按任意鍵返回選單...");

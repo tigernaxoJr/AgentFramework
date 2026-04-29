@@ -55,9 +55,13 @@ public async Task Sample(IReranker reranker, string query, List<Document> docs)
 }
 ```
 
+## 推薦模型
+建議使用以下模型以獲得最佳的重排效果：
+- **Qwen3-Reranker-0.6B-ONNX**: [onnx-community/Qwen3-Reranker-0.6B-ONNX](https://huggingface.co/onnx-community/Qwen3-Reranker-0.6B-ONNX)
+
 ## 注意事項
 
-1. **模型選擇**：建議使用 `bge-reranker-v2-m3` 或 `bge-reranker-base` 的 ONNX 版本。
+1. **模型選擇**：除了上述推薦模型，也可以使用 `bge-reranker-v2-m3` 或 `bge-reranker-base` 的 ONNX 版本。
 2. **Tokenizer**：目前實作採用 Tiktoken 作為通用處理，針對特定模型（如 BERT 體系）建議未來擴充專用 Tokenizer。
 3. **效能**：Cross-Encoder 的運算開銷大於 Embedding，建議僅對檢索出的前 10-50 筆結果進行 Rerank。
 

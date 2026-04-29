@@ -49,6 +49,11 @@ RAG 的核心引擎，定義了所有介面與基礎實作：
 - (選用) SQL Server 或 LocalDB
 - (選用) OpenAI 相容 API Key (如 Google Gemini, OpenAI, 或 LM Studio/Ollama)
 
+### 推薦本地模型 (ONNX)
+若要使用本地 GPU 加速，建議從 Hugging Face 下載以下模型：
+- **Embedding**: [Qwen3-Embedding-0.6B-ONNX](https://huggingface.co/onnx-community/Qwen3-Embedding-0.6B-ONNX)
+- **Reranker**: [Qwen3-Reranker-0.6B-ONNX](https://huggingface.co/onnx-community/Qwen3-Reranker-0.6B-ONNX)
+
 ### 安裝與編譯
 ```bash
 git clone https://github.com/your-repo/AgentFramework.git

@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace MyRAG.Samples.Samples;
 
+// 建議模型: https://huggingface.co/onnx-community/Qwen3-Reranker-0.6B-ONNX
 public class OnnxRerankingExample
 {
     private readonly IReranker? _reranker;
@@ -78,6 +79,8 @@ public class OnnxRerankingExample
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"[✘] 發生錯誤: {ex.Message}");
+            Console.WriteLine("\n請確保已下載模型並正確設定路徑。");
+            Console.WriteLine("推薦模型下載: https://huggingface.co/onnx-community/Qwen3-Reranker-0.6B-ONNX");
             Console.ResetColor();
         }
 

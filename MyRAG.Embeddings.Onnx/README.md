@@ -54,6 +54,10 @@ public class MyService
 }
 ```
 
+## 推薦模型
+建議使用以下模型以獲得最佳的效能與準確度平衡：
+- **Qwen3-Embedding-0.6B-ONNX**: [onnx-community/Qwen3-Embedding-0.6B-ONNX](https://huggingface.co/onnx-community/Qwen3-Embedding-0.6B-ONNX)
+
 ## 注意事項
 
 - **Tokenizer**: 目前預設使用 `TiktokenTokenizer` (如 GPT-4 格式)。若您的模型 (如 Qwen) 使用特殊 Tokenizer，請確保 `tokenizer.json` 格式相容。
