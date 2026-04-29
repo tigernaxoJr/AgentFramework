@@ -5,6 +5,8 @@ using MyRAG.Core.DependencyInjection;
 using MyRAG.VectorDb.LanceDB.Extensions;
 using MyRAG.Samples.Samples;
 using MyRAG.Embeddings.Onnx.Extensions;
+using MyRAG.Reranking.Onnx.Extensions;
+
 
 // ── 建立 Host ───────────────────────────────────────────────────────────────
 var host = Host.CreateDefaultBuilder(args)
@@ -42,7 +44,16 @@ var host = Host.CreateDefaultBuilder(args)
                 modelId: cfg["Embedding:ModelId"]!);
         }
 
-        // 3. LanceDB 向量資料庫
+        // 3. Reranker (選配)
+        if (cfg.GetValue<bool>("OnnxReranker:Enabled"))
+        {
+            services.AddOnnxReranker(
+                modelPath: cfg["OnnxReranker:ModelPath"]!,
+                tokenizerJsonPath: cfg["OnnxReranker:TokenizerPath"]!,
+                useGPU: cfg.GetValue<bool>("OnnxReranker:UseGPU", true));
+        }
+
+        // 4. LanceDB 向量資料庫
         services.AddLanceDBVectorStore(
             dbPath: cfg["LanceDB:Path"] ?? "./lancedb_data",
             tableName: cfg["LanceDB:TableName"] ?? "documents");

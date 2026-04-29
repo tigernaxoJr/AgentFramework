@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRAG.VectorDb.SqlServer", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRAG.Embeddings.Onnx", "MyRAG.Embeddings.Onnx\MyRAG.Embeddings.Onnx.csproj", "{C9CEEC7B-A8CF-4CAB-848F-A23FC1F472FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRAG.Reranking.Onnx", "MyRAG.Reranking.Onnx\MyRAG.Reranking.Onnx.csproj", "{318FB400-B2EB-42D6-A995-63299A46B3CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,6 +115,18 @@ Global
 		{C9CEEC7B-A8CF-4CAB-848F-A23FC1F472FC}.Release|x64.Build.0 = Release|Any CPU
 		{C9CEEC7B-A8CF-4CAB-848F-A23FC1F472FC}.Release|x86.ActiveCfg = Release|Any CPU
 		{C9CEEC7B-A8CF-4CAB-848F-A23FC1F472FC}.Release|x86.Build.0 = Release|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Debug|x64.Build.0 = Debug|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Debug|x86.Build.0 = Debug|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Release|x64.ActiveCfg = Release|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Release|x64.Build.0 = Release|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Release|x86.ActiveCfg = Release|Any CPU
+		{318FB400-B2EB-42D6-A995-63299A46B3CD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

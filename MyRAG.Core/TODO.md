@@ -14,6 +14,10 @@
     *   [x] 實作 `IQueryTransformer` 介面。
     *   [x] 實作 Query Rewriter (查詢重寫/擴充)。
     *   [x] 實作 HyDE (Hypothetical Document Embeddings)。
+*   **重新排序優化 (Re-ranking)**
+    *   [x] 實作 `IReranker` 介面。
+    *   [x] 實作 `OnnxReranker` (基於 BGE Reranker)。
+
 
 ## 🚀 待處理 (Next Steps)
 
@@ -24,6 +28,4 @@
     *   [ ] 建立 `IDocumentLoader` 介面。
     *   [ ] 實作 `TextLoader` 與 `MarkdownLoader`。
     *   [ ] 建立獨立擴充專案處理 PDF/HTML (預計命名為 `MyRAG.DataLoaders.Pdf`)。
-*   **重新排序優化 (Re-ranking)**
-    *   [ ] 實作 `IReranker` 介面。
-    *   [ ] 接入 Cohere 或 BGE Reranker。
+
