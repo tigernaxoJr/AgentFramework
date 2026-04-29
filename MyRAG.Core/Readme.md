@@ -18,7 +18,7 @@
 
 ### 4. RAG 處理管線與引擎 (Pipelines & Engine)
 *   **Ingestion Pipeline**：整合文件讀取、自動切塊與向量資料庫儲存的資料匯入流程。
-*   **Retrieval Pipeline**：整合查詢轉換、向量檢索、多路融合與重新排序的資料檢索流程。
+*   **Retrieval Pipeline**：整合查詢轉換、向量檢索、多路融合與 **重新排序 (Reranking)** 的資料檢索流程。
 *   **RagEngine**：集中管理上述雙管線的單一入口點。
 
 ### 5. 現代化架構設計
@@ -184,6 +184,9 @@ public async Task ManageDocs(IVectorStore vectorStore, List<Document> docs)
 {
     // 匯入文件 (若文件無 Embedding，Store 內部應呼叫 IEmbeddingService 產生)
     await vectorStore.UpsertAsync(docs);
+    
+    // (選配) 執行優化以釋放空間
+    await vectorStore.OptimizeAsync();
     
     // 相似度搜尋
     var results = await vectorStore.SearchAsync("如何實作 RAG?", topK: 3);

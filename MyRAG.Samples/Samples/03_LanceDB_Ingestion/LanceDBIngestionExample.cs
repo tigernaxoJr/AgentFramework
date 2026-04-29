@@ -86,9 +86,13 @@ public class LanceDBIngestionExample(IVectorStore vectorStore) : SampleBase
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
             await _vectorStore.UpsertAsync(documents);
+            
+            PrintStep("執行資料庫優化 (Optimize/Compact)...");
+            await _vectorStore.OptimizeAsync();
+            
             sw.Stop();
 
-            PrintSuccess($"成功匯入 {documents.Count} 份文件！耗時：{sw.ElapsedMilliseconds} ms");
+            PrintSuccess($"成功匯入 {documents.Count} 份文件並完成優化！耗時：{sw.ElapsedMilliseconds} ms");
             Console.WriteLine();
             PrintInfo("提示", "資料已持久化至磁碟，下次啟動程式仍可查詢。");
             PrintInfo("提示", "執行「範例 04」查看向量搜尋效果。");

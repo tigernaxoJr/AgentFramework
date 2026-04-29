@@ -29,4 +29,10 @@ public interface IVectorStore
     /// <param name="documentId">要刪除的文件 ID。</param>
     /// <param name="cancellationToken">取消權杖。</param>
     Task DeleteAsync(string documentId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 執行資料庫優化操作（例如壓縮檔案、清理舊版本或更新索引）。
+    /// </summary>
+    /// <param name="cancellationToken">取消權杖。</param>
+    Task OptimizeAsync(CancellationToken cancellationToken = default);
 }

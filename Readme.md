@@ -23,6 +23,9 @@ RAG 的核心引擎，定義了所有介面與基礎實作：
 ### 4. [MyRAG.VectorDb.SqlServer](./MyRAG.VectorDb.SqlServer)
 為 SQL Server 2022+ 提供的向量資料庫擴充。支援將向量資料存儲於傳統關聯式資料庫中，並提供向量相似度檢索功能。
 
+### 5. [MyRAG.Reranking.Onnx](./MyRAG.Reranking.Onnx)
+基於 **ONNX Runtime** 的本地 Reranker 實作。透過 Cross-Encoder 模型對檢索結果進行精確的二次排序，顯著提升 RAG 的回答準確度。
+
 ### 5. [MyAgentFramework](./MyAgentFramework)
 基於 Microsoft Agents AI 的代理框架，支援：
 - 多代理協作。
@@ -35,7 +38,8 @@ RAG 的核心引擎，定義了所有介面與基礎實作：
 - LanceDB 資料匯入與檢索。
 - SQL Server 向量搜尋示範。
 - ONNX 本地向量生成示範。
-- 進階 RAG 流程 (包含查詢擴展與重疊切塊)。
+- ONNX 本地 Reranking 排序示範。
+- 進階 RAG 流程 (包含查詢擴展、重疊切塊與 Rerank)。
 
 ---
 
@@ -67,6 +71,8 @@ dotnet run
 - **重疊切塊 (Overlap Chunking)**: 確保文本切分時脈絡不丟失。
 - **查詢擴展 (Query Expansion)**: 透過 LLM 生成多個變體查詢，提高搜尋召回率。
 - **本地 GPU 加速**: 透過 ONNX 與 DirectML 充分利用 AMD iGPU 效能，降低雲端成本。
+- **重新排名 (Reranking)**: 整合 Cross-Encoder 模型，在向量搜尋後進行精確過濾。
+- **儲存空間優化**: LanceDB 支援自動 Upsert 去重與 `Optimize` 磁碟空間回收功能。
 - **混合檢索 (Hybrid Search)**: 結合向量搜尋與關鍵字搜尋，並透過 RRF 進行排名融合。
 - **介面優先設計**: 所有儲存與編碼元件均可透過 Dependency Injection 輕鬆替換。
 

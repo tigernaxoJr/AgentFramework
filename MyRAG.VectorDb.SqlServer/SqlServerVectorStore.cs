@@ -165,6 +165,13 @@ public class SqlServerVectorStore : IVectorStore
         await connection.ExecuteAsync(sql, new { Id = documentId });
     }
 
+    /// <inheritdoc />
+    public Task OptimizeAsync(CancellationToken cancellationToken = default)
+    {
+        // SQL Server 的索引維護通常由 DBCC 或維護計畫執行，此處暫不做特定操作
+        return Task.CompletedTask;
+    }
+
     private static float CosineSimilarity(ReadOnlySpan<float> vec1, ReadOnlySpan<float> vec2)
     {
         if (vec1.Length != vec2.Length) return 0;

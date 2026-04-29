@@ -74,4 +74,11 @@ public class InMemoryVectorStore : IVectorStore
         _store.TryRemove(documentId, out _);
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task OptimizeAsync(CancellationToken cancellationToken = default)
+    {
+        // 記憶體存儲不需要物理優化
+        return Task.CompletedTask;
+    }
 }

@@ -71,6 +71,20 @@ public class LanceDBVectorStore : IVectorStore
         }
         else
         {
+            // 執行 Upsert 邏輯：先刪除已存在的相同 ID 文件
+            var ids = docList.Select(d => $"'{d.Id.Replace("'", "''")}'");
+            var filter = $"id IN ({string.Join(",", ids)})";
+            
+            try 
+            {
+                await _table.Delete(filter);
+            }
+            catch (Exception ex)
+            {
+                // 如果刪除失敗（例如資料表剛建立還沒索引），紀錄警告並繼續
+                Console.WriteLine($"[Warning] 執行 Upsert 刪除舊資料時發生錯誤: {ex.Message}");
+            }
+
             await _table.Add(new[] { batch });
         }
     }
@@ -182,6 +196,19 @@ public class LanceDBVectorStore : IVectorStore
         if (_table == null) return;
 
         await _table.Delete($"id = '{documentId}'");
+    }
+
+    /// <inheritdoc />
+    public async Task OptimizeAsync(CancellationToken cancellationToken = default)
+    {
+        await EnsureInitializedAsync();
+        if (_table == null) return;
+
+        // 1. 壓縮碎小檔案以提升效能
+        await _table.CompactFiles();
+
+        // 2. 物理刪除已標記為刪除的資料與過期版本（預設保留最近版本）
+        await _table.CleanupOldVersions();
     }
 
     /// <summary>
