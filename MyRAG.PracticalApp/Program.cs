@@ -2,13 +2,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.AI;
-using MyRAG.Core.DependencyInjection;
 using MyRAG.Core.Interfaces;
 using MyRAG.Core.Models;
-using MyRAG.Embeddings.Onnx.Extensions;
-using MyRAG.Reranking.Onnx.Extensions;
-using MyRAG.VectorDb.LanceDB.Extensions;
-using MyRAG.VectorDb.SqlServer.Extensions;
+using MyRAG.PracticalApp.Configuration;
+using MyRAG.PracticalApp.Extensions;
 using System.Diagnostics;
 
 namespace MyRAG.PracticalApp;
@@ -21,67 +18,25 @@ class Program
 
         // Load configuration
         var config = builder.Configuration;
-        config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+        config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+              .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 
-        // 1. Core MyRAG Services
-        builder.Services.AddMyRagCore();
-
-        // 2. Configure Vector DB based on setting
-        var vectorDbProvider = config["VectorDb:Provider"]?.ToLower();
-        if (vectorDbProvider == "sqlserver")
-        {
-            var connStr = config["VectorDb:SqlServer:ConnectionString"];
-            var tableName = config["VectorDb:SqlServer:TableName"];
-            builder.Services.AddSqlServerVectorStore(connStr!, tableName!);
-            Console.WriteLine("[System] Using SQL Server Vector DB");
-        }
-        else
-        {
-            var path = config["VectorDb:LanceDB:Path"];
-            var tableName = config["VectorDb:LanceDB:TableName"];
-            builder.Services.AddLanceDBVectorStore(path!, tableName!);
-            Console.WriteLine("[System] Using LanceDB Vector DB");
-        }
-
-        // 3. Configure Embeddings (ONNX Local Model)
-        builder.Services.AddOnnxEmbeddingGenerator(
-            config["OnnxEmbedding:ModelPath"]!,
-            config["OnnxEmbedding:TokenizerPath"]!,
-            config.GetValue<bool>("OnnxEmbedding:UseGPU")
-        );
-        Console.WriteLine("[System] Configured ONNX Embedding Generator");
-
-        // 4. Configure Reranker (ONNX Local Model) if enabled
-        var rerankerEnabled = config.GetValue<bool>("OnnxReranker:Enabled");
-        if (rerankerEnabled)
-        {
-            builder.Services.AddOnnxReranker(
-                config["OnnxReranker:ModelPath"]!,
-                config["OnnxReranker:TokenizerPath"]!,
-                config.GetValue<bool>("OnnxReranker:UseGPU")
-            );
-            Console.WriteLine("[System] Configured ONNX Reranker");
-        }
-
-        // 5. Configure Chat Client for Query Expansion if enabled
-        var qeEnabled = config.GetValue<bool>("QueryExpansion:Enabled");
-        if (qeEnabled)
-        {
-            var endpoint = config["QueryExpansion:Endpoint"];
-            var modelId = config["QueryExpansion:ModelId"];
-            
-            // Register an IChatClient for multi-query expansion using Ollama
-            IChatClient chatClient = new OllamaChatClient(new Uri(endpoint!), modelId!);
-            builder.Services.AddSingleton<IChatClient>(chatClient);
-            Console.WriteLine($"[System] Configured Query Expansion with Ollama ({modelId})");
-        }
+        // 註冊所有實用程式服務與依賴
+        builder.Services.AddPracticalAppServices(config);
 
         var host = builder.Build();
 
-        var ragEngine = host.Services.GetRequiredService<IRagEngine>();
+        var appOptions = host.Services.GetRequiredService<RagAppOptions>();
+        var ragEngine = host.Services.GetService<IRagEngine>();
         var chatClientService = host.Services.GetService<IChatClient>();
-        var chunkingStrategyStr = config["Chunking:Strategy"];
-        var strategy = chunkingStrategyStr?.ToLower() == "semantic" 
+        
+        if (ragEngine == null)
+        {
+            Console.WriteLine("[Error] 系統啟動失敗：IRagEngine 尚未註冊成功，可能缺少必要的 Embedding 服務。");
+            return;
+        }
+
+        var strategy = appOptions.Chunking.Strategy?.ToLower() == "semantic" 
                        ? ChunkingStrategy.Semantic 
                        : ChunkingStrategy.Batched;
 
@@ -115,7 +70,7 @@ class Program
         try 
         {
             // Query Expansion
-            if (qeEnabled && chatClientService != null)
+            if (appOptions.QueryExpansion.Enabled && chatClientService != null)
             {
                 Console.WriteLine("  -> Expanding query...");
                 var expander = new MyRAG.Core.Retrieval.MultiQueryExpander(chatClientService, numQueries: 2);
