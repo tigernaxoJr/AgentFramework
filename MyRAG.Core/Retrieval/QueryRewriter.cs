@@ -1,6 +1,7 @@
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using MyRAG.Core.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace MyRAG.Core.Retrieval;
 
@@ -26,14 +27,25 @@ public class QueryRewriter : IQueryTransformer
     {
         var prompt = _promptTemplate.Replace("{query}", query);
 
-        // 建立 Agent
-        var agent = _chatClient.AsAIAgent();
+        // 直接使用 IChatClient 執行並取得回應
+        var response = await _chatClient.GetResponseAsync(prompt, cancellationToken: cancellationToken);
 
-        // 執行並取得回應
-        AgentResponse response = await agent.RunAsync(prompt, cancellationToken: cancellationToken);
+        var responseText = response.Text ?? string.Empty;
 
-        // 新版直接用 AgentResponse.Text
-        var rewrittenQuery = response.Text?.Trim() ?? query;
+        // 移除 <thought> 標記及其內容
+        if (responseText.Contains("<thought>"))
+        {
+            responseText = Regex.Replace(responseText, @"<thought>[\s\S]*?<\/thought>", "").Trim();
+        }
+
+        // 移除中繼資料行並合併結果
+        var lines = responseText.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(l => l.Trim())
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Where(l => !l.StartsWith("<") && !l.Contains("Role:") && !l.Contains("Task:"))
+            .ToList();
+
+        var rewrittenQuery = lines.Count > 0 ? string.Join(" ", lines) : query;
 
         return rewrittenQuery;
     }

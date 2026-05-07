@@ -24,22 +24,29 @@ public class MultiQueryExpander
     /// </summary>
     public async Task<List<string>> ExpandAsync(string query, CancellationToken cancellationToken = default)
     {
-        var prompt = $@"You are an AI language model assistant. Your task is to generate {_numQueries} 
-different versions of the given user query to retrieve relevant documents from a vector database. 
-By generating multiple perspectives on the user query, your goal is to help the user overcome some of the limitations of the distance-based similarity search. 
-Provide these alternative queries separated by newlines. Do not include numbering or any other text.
+        var prompt = $@"Generate {_numQueries} different search queries based on the original query to help retrieve relevant documents from a vector database.
+Output ONLY the queries, one per line. Do not include numbering, bullets, preamble, or thinking tags.
 
 Original query: {query}";
 
-        var agent = _chatClient.AsAIAgent();
-        var response = await agent.RunAsync(prompt, cancellationToken: cancellationToken);
+        // 直接使用 IChatClient 執行並取得回應
+        var response = await _chatClient.GetResponseAsync(prompt, cancellationToken: cancellationToken);
 
-        var lines = response.Text?.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                    ?? new string[] { };
+        var responseText = response.Text ?? string.Empty;
+
+        // 移除 <thought> 標記及其內容（如果存在）
+        if (responseText.Contains("<thought>"))
+        {
+            responseText = Regex.Replace(responseText, @"<thought>[\s\S]*?<\/thought>", "").Trim();
+        }
+
+        var lines = responseText.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
         var expandedQueries = lines
-            .Select(l => Regex.Replace(l, @"^\d+\.\s*", "").Trim()) // 移除可能的數字編號
+            .Select(l => Regex.Replace(l, @"^\d+\.\s*", "").Trim()) // 移除數字編號
+            .Select(l => Regex.Replace(l, @"^[*+-]\s*", "").Trim()) // 移除項目符號
             .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Where(l => !l.StartsWith("<") && !l.Contains("Role:") && !l.Contains("Task:")) // 額外過濾標記與中繼資料
             .Take(_numQueries)
             .ToList();
 
