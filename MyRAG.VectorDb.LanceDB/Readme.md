@@ -132,4 +132,4 @@ services.AddLanceDBVectorStore("./data", tableName: "my_custom_table");
 
 1. **環境要求**：LanceDB 依賴於原生二進位檔，目前支援 Windows (x64), Linux (x64) 與 macOS (arm64/x64)。
 2. **併發存取**：LanceDB 支援多個讀取者，但在寫入時會進行鎖定，建議在單一應用程式進程中使用。
-3. **向量維度一致性**：同一個資料表內的向量維度必須一致。如果您更換了 Embedding 模型（例如從 768 維換到 1536 維），請務必刪除舊的資料表或使用不同的 `tableName`。
+3. **向量維度一致性**：同一個資料表內的向量維度必須一致。如果您更換了 Embedding 模型（例如從 768 維換到 1024 維），請務必刪除舊的資料表或使用不同的 `tableName`。

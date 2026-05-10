@@ -19,11 +19,38 @@
 1. **.NET 10 SDK** (或符合專案定義的版本)
 2. **ONNX 模型檔案**：
    - 您需要下載 Embedding 模型與 Reranker 模型的 ONNX 版本與 tokenizer 檔案。
-   - 範例推薦模型：`qwen3-embedding-0.6B` 及 `qwen3-reranker-0.6B`。
+   - 範例推薦模型：`qwen3-embedding-0.6B` (1024維度) 及 `qwen3-reranker-0.6B`。
 3. **Ollama (若啟用 Query Expansion)**：
    - 需安裝 Ollama 並下載對應的模型（例如：`llama3`）。
 4. **SQL Server (若使用 SQL Server 向量庫)**：
    - 需備有 SQL Server 資料庫實例並提供連線字串。
+   - **手動建立資料表**：本專案的 `SqlServerVectorStore` 雖然具備自動建立表的功能，但若您需要手動建立或調整結構，請參考下方 SQL：
+
+     **傳統方式 (SQL Server 2022 及更早版本 - 本專案預設使用)：**
+     ```sql
+     CREATE TABLE [RagDocuments] (
+         [Id] NVARCHAR(450) PRIMARY KEY,
+         [Content] NVARCHAR(MAX) NOT NULL,
+         [Source] NVARCHAR(MAX) NULL,
+         [Metadata] NVARCHAR(MAX) NULL,
+         [Embedding] VARBINARY(MAX) NOT NULL -- 儲存向量二進位資料
+     );
+     ```
+
+     **原生方式 (SQL Server 2025+ / Azure SQL)：**
+     若您的版本支援原生向量，建議改用 `VECTOR` 類型：
+     ```sql
+     CREATE TABLE [RagDocuments] (
+         [Id] NVARCHAR(450) PRIMARY KEY,
+         [Content] NVARCHAR(MAX) NOT NULL,
+         [Source] NVARCHAR(MAX) NULL,
+         [Metadata] NVARCHAR(MAX) NULL,
+         [Embedding] VECTOR(1024) NOT NULL -- 1024 為 qwen3-embedding-0.6B 的維度
+     );
+     ```
+
+5. **設定檔優先級**：
+   - 建議將敏感資訊（如連線字串）存放在 `appsettings.local.json` 中，該檔案已被 `.gitignore` 排除，不會上傳至 Git。
 
 ## 如何設定 (`appsettings.json`)
 
