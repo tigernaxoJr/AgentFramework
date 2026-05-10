@@ -17,12 +17,14 @@ public class LanceDBVectorStore : IVectorStore
     private readonly string _tableName;
     private lancedb.Connection? _connection;
     private lancedb.Table? _table;
+    private readonly int _dimensions;
 
-    public LanceDBVectorStore(IEmbeddingService embeddingService, string dbPath, string tableName = "documents")
+    public LanceDBVectorStore(IEmbeddingService embeddingService, string dbPath, string tableName = "documents", int dimensions = 1024)
     {
         _embeddingService = embeddingService;
         _dbPath = dbPath;
         _tableName = tableName;
+        _dimensions = dimensions;
     }
 
     private async Task EnsureInitializedAsync()
@@ -94,7 +96,7 @@ public class LanceDBVectorStore : IVectorStore
         if (documents.Count == 0) throw new ArgumentException("Documents list is empty.");
 
         var firstEmbedding = documents.First().Embedding!.Value;
-        int dimension = firstEmbedding.Length;
+        int dimension = _dimensions > 0 ? _dimensions : firstEmbedding.Length;
 
         // 定義 Schema
         var schemaBuilder = new Schema.Builder()

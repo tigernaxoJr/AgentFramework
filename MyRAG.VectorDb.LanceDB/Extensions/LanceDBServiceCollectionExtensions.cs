@@ -15,12 +15,12 @@ public static class LanceDBServiceCollectionExtensions
     /// <param name="dbPath">資料庫儲存路徑。</param>
     /// <param name="tableName">資料表名稱 (預設為 "documents")。</param>
     /// <returns>服務集合。</returns>
-    public static IServiceCollection AddLanceDBVectorStore(this IServiceCollection services, string dbPath, string tableName = "documents")
+    public static IServiceCollection AddLanceDBVectorStore(this IServiceCollection services, string dbPath, string tableName = "documents", int dimensions = 1024)
     {
         services.AddSingleton<IVectorStore>(sp =>
         {
             var embeddingService = sp.GetRequiredService<IEmbeddingService>();
-            return new LanceDBVectorStore(embeddingService, dbPath, tableName);
+            return new LanceDBVectorStore(embeddingService, dbPath, tableName, dimensions);
         });
 
         return services;

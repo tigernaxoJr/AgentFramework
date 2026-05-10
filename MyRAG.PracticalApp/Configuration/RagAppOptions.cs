@@ -20,6 +20,7 @@ public class LanceDbOptions
 {
     public string Path { get; set; } = "./lancedb_data";
     public string TableName { get; set; } = "documents";
+    public int Dimensions { get; set; } = 1024;
 }
 
 public class SqlServerOptions

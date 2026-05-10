@@ -29,7 +29,7 @@ public static class AppServiceCollectionExtensions
             if (string.IsNullOrWhiteSpace(appOptions.VectorDb.SqlServer.ConnectionString))
             {
                 Console.WriteLine("[Warning] SQL Server 供應商被選取，但未提供 ConnectionString，將回退到 LanceDB。");
-                services.AddLanceDBVectorStore(appOptions.VectorDb.LanceDB.Path, appOptions.VectorDb.LanceDB.TableName);
+                services.AddLanceDBVectorStore(appOptions.VectorDb.LanceDB.Path, appOptions.VectorDb.LanceDB.TableName, appOptions.VectorDb.LanceDB.Dimensions);
             }
             else
             {
@@ -39,7 +39,7 @@ public static class AppServiceCollectionExtensions
         }
         else
         {
-            services.AddLanceDBVectorStore(appOptions.VectorDb.LanceDB.Path, appOptions.VectorDb.LanceDB.TableName);
+            services.AddLanceDBVectorStore(appOptions.VectorDb.LanceDB.Path, appOptions.VectorDb.LanceDB.TableName, appOptions.VectorDb.LanceDB.Dimensions);
             Console.WriteLine("[System] Using LanceDB Vector DB");
         }
 
