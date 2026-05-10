@@ -115,15 +115,15 @@ public class RagEngineEndToEndExample(IRagEngine ragEngine, IChatClient chatClie
                 PrintStep("執行查詢擴展 (Multi-Query Expansion)...");
                 var expander = new MyRAG.Core.Retrieval.MultiQueryExpander(_chatClient, numQueries: 2);
                 var expandedQueries = await expander.ExpandAsync(query);
-                
-                foreach (var q in expandedQueries) 
+
+                foreach (var q in expandedQueries)
                 {
                     Console.WriteLine($"    -> {q}");
                 }
                 Console.WriteLine();
 
                 var swRetrieve = System.Diagnostics.Stopwatch.StartNew();
-                
+
                 // 注意：在正式管線中，我們可以將擴展邏輯封裝在 IQueryTransformer 中。
                 // 這裡為了展示，我們取擴展後的第一個（或合併結果）。
                 // 為了簡化展示，我們直接用原始 Query 呼叫管線（管線內部若有註冊 Transformer 也會執行）。
@@ -141,11 +141,11 @@ public class RagEngineEndToEndExample(IRagEngine ragEngine, IChatClient chatClie
                 // ── 生成最終 Prompt ──────────────────────────────────────────
                 Console.WriteLine();
                 PrintStep("產出最終 Prompt Context...");
-                
+
                 var promptBuilder = new System.Text.StringBuilder();
                 promptBuilder.AppendLine("你是一個專業的 AI 助手。請根據下方提供的【參考資料】來回答使用者的問題。");
                 promptBuilder.AppendLine("\n【參考資料】:");
-                
+
                 foreach (var res in resultList)
                 {
                     promptBuilder.AppendLine($"--- 來源: {res.Item.Source} (相關度: {res.Score:F4}) ---");

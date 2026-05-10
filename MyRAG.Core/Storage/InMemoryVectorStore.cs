@@ -24,12 +24,12 @@ public class InMemoryVectorStore : IVectorStore
     {
         var docList = documents.ToList();
         var docsToEmbed = docList.Where(d => d.Embedding == null || d.Embedding.Value.IsEmpty).ToList();
-        
+
         if (docsToEmbed.Count > 0)
         {
             var contents = docsToEmbed.Select(d => d.Content);
             var embeddings = await _embeddingService.GenerateEmbeddingsAsync(contents, cancellationToken);
-            
+
             for (int i = 0; i < docsToEmbed.Count; i++)
             {
                 docsToEmbed[i].Embedding = embeddings[i].Vector;
@@ -50,7 +50,7 @@ public class InMemoryVectorStore : IVectorStore
         // Generate embedding for the search query
         var queryEmbeddingResult = await _embeddingService.GenerateEmbeddingsAsync(new[] { query }, cancellationToken);
         if (queryEmbeddingResult.Count == 0) return Enumerable.Empty<Document>();
-        
+
         var queryVectorMemory = queryEmbeddingResult[0].Vector;
 
         // Perform brute-force cosine similarity search

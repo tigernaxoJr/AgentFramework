@@ -29,15 +29,15 @@ class Program
         var appOptions = host.Services.GetRequiredService<RagAppOptions>();
         var ragEngine = host.Services.GetService<IRagEngine>();
         var chatClientService = host.Services.GetService<IChatClient>();
-        
+
         if (ragEngine == null)
         {
             Console.WriteLine("[Error] 系統啟動失敗：IRagEngine 尚未註冊成功，可能缺少必要的 Embedding 服務。");
             return;
         }
 
-        var strategy = appOptions.Chunking.Strategy?.ToLower() == "semantic" 
-                       ? ChunkingStrategy.Semantic 
+        var strategy = appOptions.Chunking.Strategy?.ToLower() == "semantic"
+                       ? ChunkingStrategy.Semantic
                        : ChunkingStrategy.Batched;
 
         Console.WriteLine($"[System] Chunking Strategy: {strategy}");
@@ -53,7 +53,7 @@ class Program
 
         Console.WriteLine("\n[1] Starting Ingestion Pipeline...");
         var sw = Stopwatch.StartNew();
-        try 
+        try
         {
             await ragEngine.Ingestion.IngestAsync(documents, strategy);
             Console.WriteLine($"[Success] Ingested {documents.Count} documents in {sw.ElapsedMilliseconds} ms.");
@@ -67,14 +67,14 @@ class Program
         var query = "Tell me about vector databases and RAG.";
         Console.WriteLine($"Query: \"{query}\"");
 
-        try 
+        try
         {
             // Query Expansion
             if (appOptions.QueryExpansion.Enabled && chatClientService != null)
             {
                 Console.WriteLine("  -> Expanding query...");
                 var expander = new MyRAG.Core.Retrieval.MultiQueryExpander(chatClientService, numQueries: 2);
-                try 
+                try
                 {
                     var expanded = await expander.ExpandAsync(query);
                     foreach (var eq in expanded)

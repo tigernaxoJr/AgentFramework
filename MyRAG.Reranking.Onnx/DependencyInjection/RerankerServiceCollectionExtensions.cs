@@ -15,14 +15,14 @@ public static class RerankerServiceCollectionExtensions
     /// <param name="useGPU">是否使用 GPU 加速。</param>
     /// <returns>服務集合。</returns>
     public static IServiceCollection AddOnnxReranker(
-        this IServiceCollection services, 
-        string modelPath, 
-        string tokenizerJsonPath, 
+        this IServiceCollection services,
+        string modelPath,
+        string tokenizerJsonPath,
         bool useGPU = true)
     {
-        services.AddSingleton<IReranker>(sp => 
+        services.AddSingleton<IReranker>(sp =>
             new OnnxReranker(modelPath, tokenizerJsonPath, useGPU));
-            
+
         return services;
     }
 }

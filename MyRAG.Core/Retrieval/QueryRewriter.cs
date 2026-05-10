@@ -16,7 +16,7 @@ public class QueryRewriter : IQueryTransformer
     public QueryRewriter(IChatClient chatClient, string? customPrompt = null)
     {
         _chatClient = chatClient;
-        _promptTemplate = customPrompt ?? 
+        _promptTemplate = customPrompt ??
             "Translate and expand the following user query into a highly descriptive search query for a vector database. " +
             "Include synonyms and related technical terms. Return ONLY the final query string without any explanation or quotes.\n\n" +
             "User Query: {query}";

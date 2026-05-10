@@ -29,9 +29,9 @@ var host = Host.CreateDefaultBuilder(args)
 
         // 2. Chat Client & Embedding Generator
         var provider = cfg["Embedding:Provider"] ?? "OpenAI";
-        
+
         // 註冊 IChatClient (用於 Query Expansion, Prompt 生成等)
-        services.AddSingleton<IChatClient>(sp => 
+        services.AddSingleton<IChatClient>(sp =>
         {
             var chatModelId = cfg["Chat:ModelId"] ?? "gemini-1.5-flash";
             var chatApiKey = cfg["Chat:ApiKey"] ?? cfg["Embedding:ApiKey"]!;
@@ -40,7 +40,7 @@ var host = Host.CreateDefaultBuilder(args)
             var openAIClient = new OpenAI.OpenAIClient(
                 new System.ClientModel.ApiKeyCredential(chatApiKey),
                 new OpenAI.OpenAIClientOptions { Endpoint = new Uri(chatEndpoint) });
-            
+
             return openAIClient.GetChatClient(chatModelId).AsIChatClient();
         });
 

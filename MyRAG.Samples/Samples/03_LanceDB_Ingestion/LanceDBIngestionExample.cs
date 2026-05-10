@@ -86,10 +86,10 @@ public class LanceDBIngestionExample(IVectorStore vectorStore) : SampleBase
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
             await _vectorStore.UpsertAsync(documents);
-            
+
             PrintStep("執行資料庫優化 (Optimize/Compact)...");
             await _vectorStore.OptimizeAsync();
-            
+
             sw.Stop();
 
             PrintSuccess($"成功匯入 {documents.Count} 份文件並完成優化！耗時：{sw.ElapsedMilliseconds} ms");

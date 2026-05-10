@@ -17,12 +17,12 @@ public static class LanceDBServiceCollectionExtensions
     /// <returns>服務集合。</returns>
     public static IServiceCollection AddLanceDBVectorStore(this IServiceCollection services, string dbPath, string tableName = "documents")
     {
-        services.AddSingleton<IVectorStore>(sp => 
+        services.AddSingleton<IVectorStore>(sp =>
         {
             var embeddingService = sp.GetRequiredService<IEmbeddingService>();
             return new LanceDBVectorStore(embeddingService, dbPath, tableName);
         });
-        
+
         return services;
     }
 }

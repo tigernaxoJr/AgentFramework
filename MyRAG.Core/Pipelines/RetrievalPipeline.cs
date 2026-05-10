@@ -14,8 +14,8 @@ public class RetrievalPipeline : IRetrievalPipeline
     private readonly IReranker? _reranker;
 
     public RetrievalPipeline(
-        IVectorStore vectorStore, 
-        IQueryTransformer? queryTransformer = null, 
+        IVectorStore vectorStore,
+        IQueryTransformer? queryTransformer = null,
         IRankFusion? rankFusion = null,
         IReranker? reranker = null)
     {

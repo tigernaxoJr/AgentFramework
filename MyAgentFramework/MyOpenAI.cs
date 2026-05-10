@@ -16,7 +16,8 @@ namespace MyAgentFramework
     {
         public static async Task<AgentResponse> test()
         {
-            OpenAIClient client = new OpenAIClient(new ApiKeyCredential("apikey"), new OpenAIClientOptions() { 
+            OpenAIClient client = new OpenAIClient(new ApiKeyCredential("apikey"), new OpenAIClientOptions()
+            {
                 Endpoint = new Uri("http://192.168.68.250:11434/v1/")
             });
             var chatClient = client.GetChatClient("gemma4:26B-128k");

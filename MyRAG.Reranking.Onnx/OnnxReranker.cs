@@ -30,7 +30,7 @@ public sealed class OnnxReranker : IReranker, IDisposable
         // 初始化 Tokenizer
         // 註：實務上應根據模型類型 (如 BGE 使用 WordPiece/BPE) 選擇適當的載入方式。
         // 這裡延續專案現有模式，建議未來可擴充支援從 tokenizer.json 完整載入。
-        _tokenizer = TiktokenTokenizer.CreateForModel("gpt-4"); 
+        _tokenizer = TiktokenTokenizer.CreateForModel("gpt-4");
 
         var options = new SessionOptions();
         if (useGPU)
@@ -55,8 +55,8 @@ public sealed class OnnxReranker : IReranker, IDisposable
 
     /// <inheritdoc/>
     public async Task<IEnumerable<RankedItem<Document>>> RerankAsync(
-        string query, 
-        IEnumerable<Document> documents, 
+        string query,
+        IEnumerable<Document> documents,
         CancellationToken cancellationToken = default)
     {
         var rankedItems = new List<RankedItem<Document>>();
@@ -64,7 +64,7 @@ public sealed class OnnxReranker : IReranker, IDisposable
         foreach (var doc in documents)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             // 對於 Cross-Encoder，我們將查詢與文件內容拼接
             // 典型格式為 [CLS] query [SEP] content [SEP]
             var score = GetScore(query, doc.Content);
@@ -80,7 +80,7 @@ public sealed class OnnxReranker : IReranker, IDisposable
         // 簡單拼接 Query 與 Content
         // 註：這是一個簡化的實作，正式環境應使用 Tokenizer 的 Pairwise Encoding 處理 [SEP] 標記
         var combinedText = $"{query} {content}";
-        
+
         var ids = _tokenizer.EncodeToIds(combinedText).Select(x => (long)x).ToArray();
         var mask = new long[ids.Length];
         Array.Fill(mask, 1L);
@@ -119,10 +119,10 @@ public sealed class OnnxReranker : IReranker, IDisposable
         }
 
         using var results = _session.Run(inputs);
-        
+
         // Reranker 通常輸出單個分數 (Logits)
         var outputTensor = results.First().AsTensor<float>();
-        
+
         // 取得第一個維度的第一個值
         return outputTensor.First();
     }

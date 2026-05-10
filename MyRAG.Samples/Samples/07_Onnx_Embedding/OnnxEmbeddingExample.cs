@@ -34,7 +34,7 @@ public class OnnxEmbeddingExample
         Console.WriteLine();
 
         var sw = Stopwatch.StartNew();
-        
+
         try
         {
             var embeddings = await _embeddingService.GenerateEmbeddingsAsync(texts);

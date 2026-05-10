@@ -44,7 +44,7 @@ public static class AppServiceCollectionExtensions
         }
 
         // 3. Configure Embeddings (ONNX Local Model)
-        if (!string.IsNullOrWhiteSpace(appOptions.OnnxEmbedding.ModelPath) && 
+        if (!string.IsNullOrWhiteSpace(appOptions.OnnxEmbedding.ModelPath) &&
             !string.IsNullOrWhiteSpace(appOptions.OnnxEmbedding.TokenizerPath))
         {
             services.AddOnnxEmbeddingGenerator(
@@ -62,7 +62,7 @@ public static class AppServiceCollectionExtensions
         // 4. Configure Reranker (ONNX Local Model) if enabled
         if (appOptions.OnnxReranker.Enabled)
         {
-            if (!string.IsNullOrWhiteSpace(appOptions.OnnxReranker.ModelPath) && 
+            if (!string.IsNullOrWhiteSpace(appOptions.OnnxReranker.ModelPath) &&
                 !string.IsNullOrWhiteSpace(appOptions.OnnxReranker.TokenizerPath))
             {
                 services.AddOnnxReranker(
@@ -82,16 +82,16 @@ public static class AppServiceCollectionExtensions
         // 5. Configure Chat Client for Query Expansion if enabled
         if (appOptions.QueryExpansion.Enabled)
         {
-            if (!string.IsNullOrWhiteSpace(appOptions.QueryExpansion.Endpoint) && 
+            if (!string.IsNullOrWhiteSpace(appOptions.QueryExpansion.Endpoint) &&
                 !string.IsNullOrWhiteSpace(appOptions.QueryExpansion.ModelId))
             {
                 // 使用 OpenAI 相容伺服器
-                var apiKey = string.IsNullOrWhiteSpace(appOptions.QueryExpansion.ApiKey) 
-                             ? "dummy-key" 
+                var apiKey = string.IsNullOrWhiteSpace(appOptions.QueryExpansion.ApiKey)
+                             ? "dummy-key"
                              : appOptions.QueryExpansion.ApiKey;
 
                 var openAiClient = new OpenAI.OpenAIClient(
-                    new System.ClientModel.ApiKeyCredential(apiKey), 
+                    new System.ClientModel.ApiKeyCredential(apiKey),
                     new OpenAI.OpenAIClientOptions { Endpoint = new Uri(appOptions.QueryExpansion.Endpoint) }
                 );
                 IChatClient chatClient = openAiClient.GetChatClient(appOptions.QueryExpansion.ModelId).AsIChatClient();

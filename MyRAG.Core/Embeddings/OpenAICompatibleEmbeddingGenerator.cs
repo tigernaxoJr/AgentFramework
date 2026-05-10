@@ -35,19 +35,19 @@ public sealed class OpenAICompatibleEmbeddingGenerator : IEmbeddingGenerator<str
 
     /// <inheritdoc/>
     public async Task<GeneratedEmbeddings<Embedding<float>>> GenerateAsync(
-        IEnumerable<string> values, 
-        Microsoft.Extensions.AI.EmbeddingGenerationOptions? options = null, 
+        IEnumerable<string> values,
+        Microsoft.Extensions.AI.EmbeddingGenerationOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         var inputs = values.ToList();
         var embeddings = await _client.GenerateEmbeddingsAsync(inputs, null, cancellationToken);
-        
+
         var result = new GeneratedEmbeddings<Embedding<float>>();
         foreach (var emb in embeddings.Value)
         {
             result.Add(new Embedding<float>(emb.ToFloats()));
         }
-        
+
         return result;
     }
 

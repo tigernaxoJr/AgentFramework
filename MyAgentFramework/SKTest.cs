@@ -6,6 +6,7 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -13,6 +14,8 @@ namespace MyAgentFramework
 {
     internal class SKTest
     {
+        [RequiresDynamicCode("Calls Microsoft.SemanticKernel.KernelExtensions.AddFromType<T>(String, IServiceProvider)")]
+        [RequiresUnreferencedCode("Calls Microsoft.SemanticKernel.KernelExtensions.AddFromType<T>(String, IServiceProvider)")]
         public static async Task Test()
         {
             // Populate values from your OpenAI deployment

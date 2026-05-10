@@ -19,11 +19,11 @@ public class SemanticKernelChunker : ITextChunkingService
     private readonly IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator;
 
     public SemanticKernelChunker(
-        TextChunkingOptions? options = null, 
+        TextChunkingOptions? options = null,
         IEmbeddingGenerator<string, Embedding<float>>? embeddingGenerator = null)
     {
         _options = options ?? new TextChunkingOptions();
-        
+
         // 在此使用了 TiktokenTokenizer.CreateForModel("text-embedding-ada-002")。為了讓這個 Tokenizer 在運行時能夠載入 
         // cl100k_base 編碼數據（這是 OpenAI 多數模型使用的編碼），需要安裝 Microsoft.ML.Tokenizers.Data.Cl100kBase 套件。
         // 如果沒有這個套件，在執行時可能會遇到找不到編碼數據的錯誤。
@@ -86,7 +86,7 @@ public class SemanticKernelChunker : ITextChunkingService
             {
                 if (currentChunk.Length > 0) currentChunk.Append(' ');
             }
-            
+
             currentChunk.Append(sentences[i + 1]);
 
             // 額外保險：如果當前累積的切塊已經超過最大限制，還是要切分

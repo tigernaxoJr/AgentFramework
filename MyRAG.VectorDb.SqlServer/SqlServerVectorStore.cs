@@ -48,14 +48,14 @@ public class SqlServerVectorStore : IVectorStore
         await EnsureTableCreatedAsync();
 
         var docList = documents.ToList();
-        
+
         // 確保所有文件都有 Embedding
         var docsToEmbed = docList.Where(d => d.Embedding == null || d.Embedding.Value.IsEmpty).ToList();
         if (docsToEmbed.Count > 0)
         {
             var contents = docsToEmbed.Select(d => d.Content);
             var embeddings = await _embeddingService.GenerateEmbeddingsAsync(contents, cancellationToken);
-            
+
             for (int i = 0; i < docsToEmbed.Count; i++)
             {
                 docsToEmbed[i].Embedding = embeddings[i].Vector;
@@ -113,12 +113,12 @@ public class SqlServerVectorStore : IVectorStore
         // 產生查詢的向量
         var queryEmbeddingResult = await _embeddingService.GenerateEmbeddingsAsync(new[] { query }, cancellationToken);
         if (queryEmbeddingResult.Count == 0) return Enumerable.Empty<Document>();
-        
+
         var queryVector = queryEmbeddingResult[0].Vector;
         byte[] queryVectorBytes = MemoryMarshal.AsBytes(queryVector.Span).ToArray();
 
         using var connection = new SqlConnection(_connectionString);
-        
+
         // 使用 SQL Server 2025+ 原生向量搜尋函數 VECTOR_DISTANCE
         // 注意：這裡假設資料表已使用 VECTOR 類型。
         // 如果是舊版 VARBINARY，請改用原有的暴力掃描邏輯。
@@ -135,7 +135,8 @@ public class SqlServerVectorStore : IVectorStore
 
         var rows = await connection.QueryAsync<dynamic>(sql, new { topK, queryVector = queryVectorJson });
 
-        return rows.Select(row => {
+        return rows.Select(row =>
+        {
             var doc = new Document
             {
                 Id = row.Id,

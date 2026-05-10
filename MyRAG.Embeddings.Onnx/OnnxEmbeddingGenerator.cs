@@ -30,7 +30,7 @@ public sealed class OnnxEmbeddingGenerator : IEmbeddingGenerator<string, Embeddi
 
         // NOTE: 在 Microsoft.ML.Tokenizers 2.0.0 中，直接從 tokenizer.json 載入可能需要更具體的類別。
         // 暫時使用 TiktokenTokenizer 作為替代，實務上應根據模型類型 (如 Qwen) 選擇適當的載入方式。
-        _tokenizer = TiktokenTokenizer.CreateForModel("gpt-4"); 
+        _tokenizer = TiktokenTokenizer.CreateForModel("gpt-4");
 
         // 2. 設定 ONNX Session
         var options = new SessionOptions();

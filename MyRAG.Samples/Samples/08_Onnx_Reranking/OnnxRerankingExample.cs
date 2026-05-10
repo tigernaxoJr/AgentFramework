@@ -32,7 +32,7 @@ public class OnnxRerankingExample
         }
 
         var query = "如何處理醫療糾紛的爭議調解？";
-        
+
         // 模擬檢索到的文件 (混合了相關與不相關的內容)
         var documents = new List<Document>
         {
@@ -69,7 +69,7 @@ public class OnnxRerankingExample
                 Console.Write($" 分數: {result.Score:F4}");
                 Console.ResetColor();
                 Console.WriteLine($" | 來源: {result.Item.Metadata["source"]}");
-                
+
                 var snippet = result.Item.Content.Length > 60 ? result.Item.Content.Substring(0, 60) + "..." : result.Item.Content;
                 Console.WriteLine($"    內容: {snippet}");
                 Console.WriteLine();

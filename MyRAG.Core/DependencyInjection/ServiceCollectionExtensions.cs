@@ -29,12 +29,12 @@ public static class ServiceCollectionExtensions
     {
         var options = new TextChunkingOptions();
         configureOptions?.Invoke(options);
-        
+
         services.AddSingleton(options);
         services.AddSingleton<ITextChunkingService, SemanticKernelChunker>();
         services.AddSingleton<IEmbeddingService, EmbeddingService>();
         services.AddSingleton<IRankFusion, ReciprocalRankFusion>();
-        
+
         return services;
     }
 

@@ -49,14 +49,14 @@ public class LanceDBVectorStore : IVectorStore
         await EnsureInitializedAsync();
 
         var docList = documents.ToList();
-        
+
         // 確保所有文件都有 Embedding
         var docsToEmbed = docList.Where(d => d.Embedding == null || d.Embedding.Value.IsEmpty).ToList();
         if (docsToEmbed.Count > 0)
         {
             var contents = docsToEmbed.Select(d => d.Content);
             var embeddings = await _embeddingService.GenerateEmbeddingsAsync(contents, cancellationToken);
-            
+
             for (int i = 0; i < docsToEmbed.Count; i++)
             {
                 docsToEmbed[i].Embedding = embeddings[i].Vector;
@@ -74,8 +74,8 @@ public class LanceDBVectorStore : IVectorStore
             // 執行 Upsert 邏輯：先刪除已存在的相同 ID 文件
             var ids = docList.Select(d => $"'{d.Id.Replace("'", "''")}'");
             var filter = $"id IN ({string.Join(",", ids)})";
-            
-            try 
+
+            try
             {
                 await _table.Delete(filter);
             }
@@ -114,10 +114,10 @@ public class LanceDBVectorStore : IVectorStore
         var contentBuilder = new StringArray.Builder();
         var sourceBuilder = new StringArray.Builder();
         var metadataBuilder = new StringArray.Builder();
-        
+
         // Vector Array 比較特別，需要使用 FixedSizeListArray
         var vectorValueBuilder = new FloatArray.Builder();
-        
+
         foreach (var doc in documents)
         {
             idBuilder.Append(doc.Id);
@@ -136,7 +136,7 @@ public class LanceDBVectorStore : IVectorStore
         var contentArray = contentBuilder.Build();
         var sourceArray = sourceBuilder.Build();
         var metadataArray = metadataBuilder.Build();
-        
+
         var vectorValues = vectorValueBuilder.Build();
         var vectorArray = new FixedSizeListArray(vectorType, documents.Count, vectorValues, ArrowBuffer.Empty);
 
@@ -152,7 +152,7 @@ public class LanceDBVectorStore : IVectorStore
         // 產生查詢的向量
         var queryEmbeddingResult = await _embeddingService.GenerateEmbeddingsAsync(new[] { query }, cancellationToken);
         if (queryEmbeddingResult.Count == 0) return Enumerable.Empty<Document>();
-        
+
         var queryVector = queryEmbeddingResult[0].Vector.ToArray().Select(v => (double)v).ToArray();
 
         // 執行向量搜尋
@@ -176,7 +176,7 @@ public class LanceDBVectorStore : IVectorStore
             var metadataJson = row["metadata"]?.ToString();
             if (!string.IsNullOrEmpty(metadataJson))
             {
-                try 
+                try
                 {
                     doc.Metadata = JsonSerializer.Deserialize<Dictionary<string, object>>(metadataJson) ?? new();
                 }
@@ -236,7 +236,7 @@ public class LanceDBVectorStore : IVectorStore
                 var list = JsonSerializer.Deserialize<float[]>(s);
                 if (list != null) return new ReadOnlyMemory<float>(list);
             }
-            catch 
+            catch
             {
                 // 如果不是 JSON，嘗試手動分割
                 try

@@ -19,7 +19,7 @@ public class HyDETransformer : IQueryTransformer
             "Provide a hypothetical, detailed answer to the following question. " +
             "The answer should sound like a passage from a technical manual or a textbook to help in vector search. " +
             "Question: {query}";
-    }    
+    }
 
     /// <inheritdoc />
     public async Task<string> TransformAsync(string query, CancellationToken cancellationToken = default)

@@ -21,7 +21,7 @@ public class ReciprocalRankFusion : IRankFusion
             {
                 // RRF formula: score = sum(1 / (k + rank))
                 double score = 1.0 / (k + rank);
-                
+
                 if (scoreBoard.TryGetValue(item, out double currentScore))
                 {
                     scoreBoard[item] = currentScore + score;
@@ -30,7 +30,7 @@ public class ReciprocalRankFusion : IRankFusion
                 {
                     scoreBoard[item] = score;
                 }
-                
+
                 rank++;
             }
         }

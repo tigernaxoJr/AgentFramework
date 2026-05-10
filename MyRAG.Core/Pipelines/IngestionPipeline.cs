@@ -63,7 +63,7 @@ public class IngestionPipeline : IIngestionPipeline
                 }
             }
         }
-        
+
         // 儲存至向量資料庫
         await _vectorStore.UpsertAsync(chunkedDocuments, cancellationToken);
     }
