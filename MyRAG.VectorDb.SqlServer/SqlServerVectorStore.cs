@@ -35,7 +35,7 @@ public class SqlServerVectorStore : IVectorStore
                     [Content] NVARCHAR(MAX) NOT NULL,
                     [Source] NVARCHAR(MAX) NULL,
                     [Metadata] NVARCHAR(MAX) NULL,
-                    [Embedding] VARBINARY(MAX) NOT NULL
+                    [Embedding] VECTOR(1024) NOT NULL -- 使用原生向量類型
                 );
                 CREATE INDEX IX_{_tableName}_Source ON [{_tableName}] ([Source]);
             END";
@@ -70,7 +70,9 @@ public class SqlServerVectorStore : IVectorStore
         {
             foreach (var doc in docList)
             {
-                byte[] embeddingBytes = MemoryMarshal.AsBytes(doc.Embedding!.Value.Span).ToArray();
+                // 將向量轉為 JSON 陣列字串，以相容 SQL Server 的 VECTOR 類型
+                var embeddingArray = doc.Embedding!.Value.ToArray();
+                string embeddingJson = "[" + string.Join(",", embeddingArray) + "]";
 
                 string sql = $@"
                     IF EXISTS (SELECT 1 FROM [{_tableName}] WHERE Id = @Id)
@@ -91,7 +93,7 @@ public class SqlServerVectorStore : IVectorStore
                     doc.Content,
                     doc.Source,
                     Metadata = JsonSerializer.Serialize(doc.Metadata),
-                    Embedding = embeddingBytes
+                    Embedding = embeddingJson // 傳送 JSON 字串
                 }, transaction);
             }
             await transaction.CommitAsync(cancellationToken);
@@ -117,30 +119,28 @@ public class SqlServerVectorStore : IVectorStore
 
         using var connection = new SqlConnection(_connectionString);
         
-        // 注意：這裡使用簡單的暴力掃描 + 自定義點積運算。
-        // 在正式環境中，若 SQL Server 版本支援 VECTOR_DISTANCE，應優先使用。
-        // 此範例為了相容性，展示手動計算邏輯。
-        
-        var rows = await connection.QueryAsync<dynamic>(
-            $@"SELECT TOP (@topK) Id, Content, Source, Metadata, Embedding FROM [{_tableName}]",
-            new { topK = 1000 } // 先抓出候選集 (在此範例為簡化，實際應使用專用向量函式)
-        );
+        // 使用 SQL Server 2025+ 原生向量搜尋函數 VECTOR_DISTANCE
+        // 注意：這裡假設資料表已使用 VECTOR 類型。
+        // 如果是舊版 VARBINARY，請改用原有的暴力掃描邏輯。
+        string sql = $@"
+            SELECT TOP (@topK) 
+                Id, Content, Source, Metadata, 
+                CAST(Embedding AS NVARCHAR(MAX)) as EmbeddingJson,
+                VECTOR_DISTANCE('cosine', Embedding, CAST(@queryVector AS VECTOR(1024))) as Distance
+            FROM [{_tableName}]
+            ORDER BY Distance ASC";
 
-        var results = new List<(Document Doc, float Similarity)>();
+        var queryVectorArray = queryVector.ToArray();
+        string queryVectorJson = "[" + string.Join(",", queryVectorArray) + "]";
 
-        foreach (var row in rows)
-        {
-            byte[] dbEmbeddingBytes = (byte[])row.Embedding;
-            var dbVector = MemoryMarshal.Cast<byte, float>(dbEmbeddingBytes);
+        var rows = await connection.QueryAsync<dynamic>(sql, new { topK, queryVector = queryVectorJson });
 
-            float similarity = CosineSimilarity(queryVector.Span, dbVector);
-            
+        return rows.Select(row => {
             var doc = new Document
             {
                 Id = row.Id,
                 Content = row.Content,
-                Source = row.Source,
-                Embedding = new ReadOnlyMemory<float>(dbVector.ToArray())
+                Source = row.Source
             };
 
             if (!string.IsNullOrEmpty(row.Metadata))
@@ -148,13 +148,15 @@ public class SqlServerVectorStore : IVectorStore
                 doc.Metadata = JsonSerializer.Deserialize<Dictionary<string, object>>(row.Metadata) ?? new Dictionary<string, object>();
             }
 
-            results.Add((doc, similarity));
-        }
+            // 解析回來的向量 (如果是從 JSON 轉回來的)
+            if (row.EmbeddingJson != null)
+            {
+                var vector = JsonSerializer.Deserialize<float[]>(row.EmbeddingJson);
+                doc.Embedding = new ReadOnlyMemory<float>(vector);
+            }
 
-        return results
-            .OrderByDescending(r => r.Similarity)
-            .Take(topK)
-            .Select(r => r.Doc);
+            return doc;
+        });
     }
 
     /// <inheritdoc />
