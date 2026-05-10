@@ -16,12 +16,14 @@ public class SqlServerVectorStore : IVectorStore
     private readonly IEmbeddingService _embeddingService;
     private readonly string _connectionString;
     private readonly string _tableName;
+    private readonly int _dimensions;
 
-    public SqlServerVectorStore(IEmbeddingService embeddingService, string connectionString, string tableName = "VectorDocuments")
+    public SqlServerVectorStore(IEmbeddingService embeddingService, string connectionString, string tableName = "VectorDocuments", int dimensions = 1024)
     {
         _embeddingService = embeddingService;
         _connectionString = connectionString;
         _tableName = tableName;
+        _dimensions = dimensions;
     }
 
     private async Task EnsureTableCreatedAsync()
@@ -35,7 +37,7 @@ public class SqlServerVectorStore : IVectorStore
                     [Content] NVARCHAR(MAX) NOT NULL,
                     [Source] NVARCHAR(MAX) NULL,
                     [Metadata] NVARCHAR(MAX) NULL,
-                    [Embedding] VECTOR(1024) NOT NULL -- 使用原生向量類型
+                    [Embedding] VECTOR({_dimensions}) NOT NULL -- 使用原生向量類型
                 );
                 CREATE INDEX IX_{_tableName}_Source ON [{_tableName}] ([Source]);
             END";
@@ -126,7 +128,7 @@ public class SqlServerVectorStore : IVectorStore
             SELECT TOP (@topK) 
                 Id, Content, Source, Metadata, 
                 CAST(Embedding AS NVARCHAR(MAX)) as EmbeddingJson,
-                VECTOR_DISTANCE('cosine', Embedding, CAST(@queryVector AS VECTOR(1024))) as Distance
+                VECTOR_DISTANCE('cosine', Embedding, CAST(@queryVector AS VECTOR({_dimensions}))) as Distance
             FROM [{_tableName}]
             ORDER BY Distance ASC";
 

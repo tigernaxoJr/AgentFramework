@@ -13,12 +13,12 @@ public static class ServiceCollectionExtensions
     /// <param name="connectionString">SQL Server 連線字串。</param>
     /// <param name="tableName">資料表名稱 (選填)。</param>
     /// <returns>服務集合。</returns>
-    public static IServiceCollection AddSqlServerVectorStore(this IServiceCollection services, string connectionString, string tableName = "VectorDocuments")
+    public static IServiceCollection AddSqlServerVectorStore(this IServiceCollection services, string connectionString, string tableName = "VectorDocuments", int dimensions = 1024)
     {
         services.AddSingleton<IVectorStore>(sp =>
         {
             var embeddingService = sp.GetRequiredService<IEmbeddingService>();
-            return new SqlServerVectorStore(embeddingService, connectionString, tableName);
+            return new SqlServerVectorStore(embeddingService, connectionString, tableName, dimensions);
         });
 
         return services;

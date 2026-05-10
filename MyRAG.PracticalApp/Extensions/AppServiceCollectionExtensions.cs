@@ -33,7 +33,7 @@ public static class AppServiceCollectionExtensions
             }
             else
             {
-                services.AddSqlServerVectorStore(appOptions.VectorDb.SqlServer.ConnectionString, appOptions.VectorDb.SqlServer.TableName);
+                services.AddSqlServerVectorStore(appOptions.VectorDb.SqlServer.ConnectionString, appOptions.VectorDb.SqlServer.TableName, appOptions.VectorDb.SqlServer.Dimensions);
                 Console.WriteLine("[System] Using SQL Server Vector DB");
             }
         }

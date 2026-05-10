@@ -26,6 +26,7 @@ public class SqlServerOptions
 {
     public string ConnectionString { get; set; } = "";
     public string TableName { get; set; } = "RagDocuments";
+    public int Dimensions { get; set; } = 1024;
 }
 
 public class QueryExpansionOptions
