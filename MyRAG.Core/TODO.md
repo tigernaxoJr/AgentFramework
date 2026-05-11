@@ -26,6 +26,6 @@
     *   [x] 實作 `InMemoryVectorStore` (內嵌相似度檢索)。
 *   **文件讀取器 (Document Loaders)**
     *   [ ] 建立 `IDocumentLoader` 介面。
-    *   [ ] 實作 `TextLoader` 與 `MarkdownLoader`。
+    *   [x] 實作 `LocalFolderLoader` (支援 .txt, .md, .json, .csv)。
     *   [ ] 建立獨立擴充專案處理 PDF/HTML (預計命名為 `MyRAG.DataLoaders.Pdf`)。
 

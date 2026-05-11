@@ -11,6 +11,7 @@ using OpenAI;
 using OpenAI.Embeddings;
 using System.ClientModel;
 using MyRAG.Core.Pipelines;
+using MyRAG.Core.Loaders;
 
 namespace MyRAG.Core.DependencyInjection;
 
@@ -34,6 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITextChunkingService, SemanticKernelChunker>();
         services.AddSingleton<IEmbeddingService, EmbeddingService>();
         services.AddSingleton<IRankFusion, ReciprocalRankFusion>();
+        services.AddSingleton<IDocumentLoader, LocalFolderLoader>();
 
         return services;
     }
@@ -71,7 +73,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">要加入服務的 IServiceCollection。</param>
     /// <param name="endpoint">API 端點 (例如：http://localhost:1234/v1)。</param>
-    /// <param name="apiKey">API 金鑰 (若為本地端相容 API，通常可填任意字串或 "lm-studio")。</param>
+    /// <param name="apiKey">API 金鑰 (若為本地端相容 API，通常可填任意字串 or "lm-studio")。</param>
     /// <param name="modelId">要使用的模型 ID (例如：text-embedding-nomic-embed-text-v1.5)。</param>
     /// <returns>回傳 IServiceCollection 以支援鏈式呼叫。</returns>
     public static IServiceCollection AddOpenAICompatibleEmbeddingGenerator(this IServiceCollection services, string endpoint, string apiKey, string modelId)
